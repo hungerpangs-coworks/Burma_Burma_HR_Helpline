@@ -110,7 +110,8 @@
       color: #111827;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
       border-radius: 0.75rem;
       border-color: #e5e7eb;
       background-color: #f9fafb;
@@ -118,7 +119,9 @@
       padding: 0.65rem 0.9rem;
     }
 
-    .form-control:focus, .form-select:focus, textarea:focus {
+    .form-control:focus,
+    .form-select:focus,
+    textarea:focus {
       border-color: #1d9bf0;
       box-shadow: 0 0 0 0.15rem rgba(29, 155, 240, 0.35);
       background-color: #ffffff;
@@ -343,7 +346,10 @@
     </div>
   </div>
 
-  <!-- Bootstrap JS (for components – not strictly required but handy) -->
+  <!-- Hidden iframe for form submission (avoids CORS on POST) -->
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+  <!-- Bootstrap JS -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -358,7 +364,6 @@
     let currentStep = 1;
     let deptMap = {};
     let departments = [];
-    let selectedFile = null;
 
     const $ = (id) => document.getElementById(id);
 
@@ -376,6 +381,7 @@
 
     function setStep(step) {
       currentStep = step;
+
       // panes
       for (let i = 1; i <= 3; i++) {
         const pane = $("step-" + i);
@@ -477,88 +483,63 @@
       return true;
     }
 
-    aasync function submitForm() {
-  const queryDetails = $("queryDetails").value.trim();
-  if (!queryDetails) {
-    showAlert("Please provide details about your query.", "danger");
-    return;
-  }
+    // Submit using hidden HTML form + iframe (no CORS)
+    function submitForm() {
+      const queryDetails = $("queryDetails").value.trim();
+      if (!queryDetails) {
+        showAlert("Please provide details about your query.", "danger");
+        return;
+      }
 
-  hideAlert();
-  const btnSubmit = $("btnSubmit");
-  btnSubmit.disabled = true;
-  btnSubmit.textContent = "Submitting...";
+      hideAlert();
+      const btnSubmit = $("btnSubmit");
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = "Submitting...";
 
-  const fileInput = $("fileInput");
-  const selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+      const fileInput = $("fileInput");
+      const selectedFileName =
+        fileInput.files && fileInput.files[0] ? fileInput.files[0].name : "";
 
-  // Build payload (same fields as before)
-  const payload = {
-    empId: $("empId").value.trim(),
-    employeeName: $("employeeName").value.trim(),
-    department: $("department").value.trim(),
-    designation: $("designation").value.trim(),
-    queryType: $("queryType").value.trim(),
-    queryDetails: queryDetails,
-    uploadedFile: selectedFile ? selectedFile.name : "",
-    employeeEmail: "" // Apps Script will auto-fill if possible
-  };
+      // Build payload matching Apps Script doPost(e).parameter
+      const payload = {
+        empId: $("empId").value.trim(),
+        employeeName: $("employeeName").value.trim(),
+        department: $("department").value.trim(),
+        designation: $("designation").value.trim(),
+        queryType: $("queryType").value.trim(),
+        queryDetails: queryDetails,
+        uploadedFile: selectedFileName,
+        employeeEmail: "" // Apps Script may auto-fill from Session
+      };
 
-  // 👉 IMPORTANT: send as URL-encoded form data (NO JSON, NO headers)
-  const body = new URLSearchParams();
-  Object.entries(payload).forEach(([key, value]) => {
-    body.append(key, value);
-  });
+      // Create a hidden form that posts directly to Apps Script
+      const form = document.createElement("form");
+      form.style.display = "none";
+      form.method = "POST";
+      form.action = APPS_SCRIPT_URL;
+      form.target = "hidden_iframe";
 
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      body: body    // <-- browser sets Content-Type automatically
-    });
+      Object.entries(payload).forEach(([name, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      });
 
-    const data = await res.json();
-    if (!data.ok) {
-      throw new Error(data.error || "Submission failed");
-    }
+      document.body.appendChild(form);
+      form.submit();
 
-    const ref = data.refId || ("QRMS-" + Date.now().toString().slice(-8));
-    $("refCode").textContent = ref;
+      // Generate client-side Reference ID for display
+      const ref = "QRMS-" + Date.now().toString().slice(-8);
+      $("refCode").textContent = ref;
 
-    setStep(3);
-  } catch (err) {
-    console.error(err);
-    showAlert(err.message || "Error submitting query. Please try again.", "danger");
-  } finally {
-    btnSubmit.disabled = false;
-    btnSubmit.textContent = "Submit";
-  }
-  };
-
-      try {
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-        if (!data.ok) {
-          throw new Error(data.error || "Submission failed");
-        }
-
-        const ref = data.refId || ("QRMS-" + Date.now().toString().slice(-8));
-        $("refCode").textContent = ref;
-
-        setStep(3);
-      } catch (err) {
-        console.error(err);
-        showAlert(err.message || "Error submitting query. Please try again.", "danger");
-      } finally {
+      setTimeout(() => {
         btnSubmit.disabled = false;
         btnSubmit.textContent = "Submit";
-      }
+        setStep(3);
+        document.body.removeChild(form);
+      }, 500);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
