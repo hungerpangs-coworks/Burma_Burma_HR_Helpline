@@ -372,11 +372,13 @@
   <div class="container">
     <div class="card">
       <div class="header">
+        <!-- logo image must be in repo root with this exact name -->
         <img src="Copy%20of%20BB_Logo_Display-01.png" alt="Burma Burma Logo" class="logo" />
         <h1 class="title">HR Helpline</h1>
         <p class="subtitle">Query &amp; Request Management System</p>
       </div>
 
+      <!-- step indicator -->
       <div class="steps">
         <div class="step">
           <div class="step-circle" data-step-circle="1">1</div>
@@ -394,6 +396,7 @@
         </div>
       </div>
 
+      <!-- STEP 1 -->
       <div class="form-section active" id="step-1">
         <div class="field-row">
           <div class="field">
@@ -443,6 +446,7 @@
         </div>
       </div>
 
+      <!-- STEP 2 -->
       <div class="form-section" id="step-2">
         <div class="tag" id="queryTypeTag">Query Type: –</div>
 
@@ -455,7 +459,8 @@
           <label class="label" for="fileInput">Attach Document (optional)</label>
           <div class="file-box" id="fileBox">
             <input type="file" id="fileInput" style="display:none;" />
-            <div id="fileBoxText">Click to upload or drag and drop<br />
+            <div id="fileBoxText">
+              Click to upload or drag and drop<br />
               <span class="hint">PDF, DOC, TXT, JPG, PNG (Max 10MB)</span>
             </div>
             <div id="fileInfo" style="display:none;">
@@ -473,6 +478,7 @@
         </div>
       </div>
 
+      <!-- STEP 3 -->
       <div class="form-section" id="step-3">
         <div class="center">
           <div class="success-icon">
@@ -502,7 +508,9 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
+    // Apps Script Web App URL
+    const APPS_SCRIPT_URL =
+      "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
 
     let currentStep = 1;
     let deptMap = {};
@@ -554,7 +562,10 @@
       desigSelect.disabled = true;
 
       try {
-        const res = await fetch(APPS_SCRIPT_URL + "?action=meta");
+        // IMPORTANT: send cookies so domain-restricted web app works
+        const res = await fetch(APPS_SCRIPT_URL + "?action=meta", {
+          credentials: "include"
+        });
         const json = await res.json();
 
         if (!json.ok) {
@@ -666,7 +677,8 @@
           return;
         }
         selectedFile = file;
-        fileNameEl.textContent = file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
+        fileNameEl.textContent =
+          file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
         fileInfo.style.display = "block";
         fileBoxText.style.display = "none";
       }
@@ -710,7 +722,8 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          credentials: "include"   // send cookies for domain-only web app
         });
 
         const data = await res.json();
