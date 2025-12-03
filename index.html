@@ -477,31 +477,62 @@
       return true;
     }
 
-    async function submitForm() {
-      const queryDetails = $("queryDetails").value.trim();
-      if (!queryDetails) {
-        showAlert("Please provide details about your query.", "danger");
-        return;
-      }
+    aasync function submitForm() {
+  const queryDetails = $("queryDetails").value.trim();
+  if (!queryDetails) {
+    showAlert("Please provide details about your query.", "danger");
+    return;
+  }
 
-      hideAlert();
-      const btnSubmit = $("btnSubmit");
-      btnSubmit.disabled = true;
-      btnSubmit.textContent = "Submitting...";
+  hideAlert();
+  const btnSubmit = $("btnSubmit");
+  btnSubmit.disabled = true;
+  btnSubmit.textContent = "Submitting...";
 
-      const fileInput = $("fileInput");
-      selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+  const fileInput = $("fileInput");
+  const selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
-      const payload = {
-        empId: $("empId").value.trim(),
-        employeeName: $("employeeName").value.trim(),
-        department: $("department").value.trim(),
-        designation: $("designation").value.trim(),
-        queryType: $("queryType").value.trim(),
-        queryDetails: queryDetails,
-        uploadedFile: selectedFile ? selectedFile.name : "",
-        employeeEmail: "" // will be auto-filled by Apps Script if possible
-      };
+  // Build payload (same fields as before)
+  const payload = {
+    empId: $("empId").value.trim(),
+    employeeName: $("employeeName").value.trim(),
+    department: $("department").value.trim(),
+    designation: $("designation").value.trim(),
+    queryType: $("queryType").value.trim(),
+    queryDetails: queryDetails,
+    uploadedFile: selectedFile ? selectedFile.name : "",
+    employeeEmail: "" // Apps Script will auto-fill if possible
+  };
+
+  // 👉 IMPORTANT: send as URL-encoded form data (NO JSON, NO headers)
+  const body = new URLSearchParams();
+  Object.entries(payload).forEach(([key, value]) => {
+    body.append(key, value);
+  });
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      body: body    // <-- browser sets Content-Type automatically
+    });
+
+    const data = await res.json();
+    if (!data.ok) {
+      throw new Error(data.error || "Submission failed");
+    }
+
+    const ref = data.refId || ("QRMS-" + Date.now().toString().slice(-8));
+    $("refCode").textContent = ref;
+
+    setStep(3);
+  } catch (err) {
+    console.error(err);
+    showAlert(err.message || "Error submitting query. Please try again.", "danger");
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = "Submit";
+  }
+  };
 
       try {
         const res = await fetch(APPS_SCRIPT_URL, {
