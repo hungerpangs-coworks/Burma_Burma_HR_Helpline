@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QRMS Bot – HR Helpline</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --accent: #22c55e;
+      --bg: #020617;
+      --card-bg: #020617;
+      --text: #e5e7eb;
+      --muted: #6b7280;
+      --border: #1f2937;
+      --error: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #0b1120 0, #020617 50%, #020617 100%);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 24px 20px 28px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.75);
+      backdrop-filter: blur(18px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .step-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      background: #020617;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .step-circle.active,
+    .step-circle.done {
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      color: #fff;
+      box-shadow: 0 0 12px rgba(37,99,235,0.7);
+      border-color: transparent;
+    }
+
+    .step-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .step-label.active,
+    .step-label.done {
+      color: #d1d5db;
+    }
+
+    .step-line {
+      width: 46px;
+      height: 2px;
+      border-radius: 999px;
+      background: #111827;
+    }
+
+    .step-line.done {
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      box-shadow: 0 0 10px rgba(37,99,235,0.7);
+    }
+
+    .form-section {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      margin-bottom: 14px;
+      flex: 1 1 200px;
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 5px;
+      color: #e5e7eb;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7);
+      background: #020617;
+    }
+
+    .textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      flex: 1 1 auto;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      color: #f9fafb;
+      box-shadow: 0 12px 30px rgba(37,99,235,0.55);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 36px rgba(37,99,235,0.7);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+
+    .btn-outline:hover {
+      background: #020617;
+      border-color: #4b5563;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .file-box {
+      border-radius: 10px;
+      border: 1px dashed #374151;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: #020617;
+    }
+
+    .file-box.dragover {
+      border-color: var(--primary);
+      background: rgba(37,99,235,0.1);
+    }
+
+    .file-name {
+      font-size: 13px;
+      margin-top: 8px;
+      color: #d1d5db;
+    }
+
+    .file-remove {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .error {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--error);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(37,99,235,0.15);
+      color: #bfdbfe;
+      border: 1px solid rgba(37,99,235,0.4);
+      margin-bottom: 8px;
+    }
+
+    .success-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 999px;
+      margin: 0 auto 12px;
+      background: radial-gradient(circle, #4ade80 0, #15803d 50%, #052e16 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 18px 40px rgba(34,197,94,0.65);
+    }
+
+    .success-icon svg {
+      width: 42px;
+      height: 42px;
+      fill: none;
+      stroke: white;
+      stroke-width: 2;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .ref-box {
+      margin-top: 18px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .ref-code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: 320px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      background: rgba(15,23,42,0.98);
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      z-index: 9999;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fadeInOut 3s ease forwards;
+    }
+
+    .toast-error {
+      border-color: rgba(239,68,68,0.6);
+      color: #fecaca;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(10px); }
+      10% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(10px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1 class="title">QRMS Bot</h1>
+        <p class="subtitle">Query &amp; Request Management System – HR Helpline</p>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="steps">
+        <div class="step">
+          <div class="step-circle" data-step-circle="1">1</div>
+          <div class="step-label" data-step-label="1">Details</div>
+        </div>
+        <div class="step-line" data-step-line="1"></div>
+        <div class="step">
+          <div class="step-circle" data-step-circle="2">2</div>
+          <div class="step-label" data-step-label="2">Query</div>
+        </div>
+        <div class="step-line" data-step-line="2"></div>
+        <div class="step">
+          <div class="step-circle" data-step-circle="3">3</div>
+          <div class="step-label" data-step-label="3">Done</div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Employee details -->
+      <div class="form-section active" id="step-1">
+        <div class="field-row">
+          <div class="field">
+            <label class="label" for="empId">Employee ID</label>
+            <input id="empId" class="input" />
+          </div>
+          <div class="field">
+            <label class="label" for="employeeName">Employee Name</label>
+            <input id="employeeName" class="input" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="label" for="department">Department</label>
+            <select id="department" class="select">
+              <option value="">Loading...</option>
+            </select>
+            <div class="hint" id="deptHint">Departments loaded from sheet &quot;Dept &amp; Desig&quot;</div>
+          </div>
+          <div class="field">
+            <label class="label" for="designation">Designation</label>
+            <select id="designation" class="select" disabled>
+              <option value="">Select Department first</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="queryType">Query Type</label>
+          <select id="queryType" class="select">
+            <option value="">Select Query Type</option>
+            <option value="Salary">Salary</option>
+            <option value="SC">SC (Special Consideration)</option>
+            <option value="POSH">POSH (Prevention of Sexual Harassment)</option>
+            <option value="Refer a Friend">Refer a Friend</option>
+            <option value="Leave Management">Leave Management</option>
+            <option value="Benefits & Compensation">Benefits & Compensation</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div id="step1Error" class="error" style="display:none;"></div>
+
+        <div class="buttons">
+          <button type="button" class="btn btn-primary" id="btnNext1">
+            Next →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Query details -->
+      <div class="form-section" id="step-2">
+        <div class="tag" id="queryTypeTag">Query Type: –</div>
+
+        <div class="field">
+          <label class="label" for="queryDetails">Query Details</label>
+          <textarea id="queryDetails" class="textarea" placeholder="Please describe your query in detail..."></textarea>
+        </div>
+
+        <div class="field">
+          <label class="label" for="fileInput">Attach Document (optional)</label>
+          <div class="file-box" id="fileBox">
+            <input type="file" id="fileInput" style="display:none;" />
+            <div id="fileBoxText">Click to upload or drag and drop<br />
+              <span class="hint">PDF, DOC, TXT, JPG, PNG (Max 10MB)</span>
+            </div>
+            <div id="fileInfo" style="display:none;">
+              <div class="file-name" id="fileName"></div>
+              <div class="file-remove" id="fileRemove">Remove file</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="step2Error" class="error" style="display:none;"></div>
+
+        <div class="buttons">
+          <button type="button" class="btn btn-outline" id="btnBack2">← Back</button>
+          <button type="button" class="btn btn-primary" id="btnSubmit">
+            Submit
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Thank you -->
+      <div class="form-section" id="step-3">
+        <div class="center">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5" fill="none"></circle>
+              <path d="M7 13l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <h2 style="margin: 0 0 4px; font-size: 24px;">Thank You!</h2>
+          <p style="margin:0; color:var(--muted); font-size:14px;">
+            Your query has been successfully submitted.
+          </p>
+        </div>
+
+        <div class="ref-box">
+          <div style="margin-bottom:4px;">Reference ID:</div>
+          <div class="ref-code" id="refCode">QRMS-XXXXXXXX</div>
+        </div>
+
+        <p class="hint" style="margin-top:16px;">
+          You can refer to this Reference ID while following up with HR.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // 🔗 YOUR WEB APP URL (Apps Script /exec)
+    const APPS_SCRIPT_URL = "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
+
+    let currentStep = 1;
+    let deptMap = {};
+    let departments = [];
+    let selectedFile = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function showToast(message, isError = false) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.className = "toast" + (isError ? " toast-error" : "");
+      void toast.offsetWidth;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function setStep(step) {
+      currentStep = step;
+      for (let i = 1; i <= 3; i++) {
+        const sec = $("step-" + i);
+        sec.classList.toggle("active", i === step);
+
+        const circle = document.querySelector('[data-step-circle="' + i + '"]');
+        const label = document.querySelector('[data-step-label="' + i + '"]');
+        const line = document.querySelector('[data-step-line="' + i + '"]');
+
+        if (circle) {
+          circle.classList.toggle("active", i === step);
+          circle.classList.toggle("done", i < step);
+        }
+        if (label) {
+          label.classList.toggle("active", i === step);
+          label.classList.toggle("done", i < step);
+        }
+        if (line) {
+          line.classList.toggle("done", i < step);
+        }
+      }
+    }
+
+    async function loadMeta() {
+      const deptSelect = $("department");
+      const desigSelect = $("designation");
+      const deptHint = $("deptHint");
+
+      deptSelect.innerHTML = '<option value="">Loading...</option>';
+      desigSelect.innerHTML = '<option value="">Select Department first</option>';
+      desigSelect.disabled = true;
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL + "?action=meta");
+        const json = await res.json();
+
+        if (!json.ok) {
+          throw new Error(json.error || "Failed to load metadata");
+        }
+
+        departments = json.departments || [];
+        deptMap = json.deptMap || {};
+
+        deptSelect.innerHTML = '<option value="">Select Department</option>';
+        departments.forEach((d) => {
+          const opt = document.createElement("option");
+          opt.value = d;
+          opt.textContent = d;
+          deptSelect.appendChild(opt);
+        });
+
+        deptHint.textContent = 'Departments loaded from sheet "Dept & Desig".';
+      } catch (err) {
+        console.error(err);
+        deptSelect.innerHTML = '<option value="">Error loading departments</option>';
+        deptHint.textContent = "Error loading metadata – please try again later.";
+        showToast("Error loading Departments from sheet", true);
+      }
+    }
+
+    function onDepartmentChange() {
+      const dept = $("department").value;
+      const desigSelect = $("designation");
+      desigSelect.innerHTML = "";
+
+      if (!dept || !deptMap[dept] || deptMap[dept].length === 0) {
+        desigSelect.disabled = true;
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = dept ? "No designations found" : "Select Department first";
+        desigSelect.appendChild(opt);
+        return;
+      }
+
+      desigSelect.disabled = false;
+      const emptyOpt = document.createElement("option");
+      emptyOpt.value = "";
+      emptyOpt.textContent = "Select Designation";
+      desigSelect.appendChild(emptyOpt);
+
+      deptMap[dept].forEach((g) => {
+        const opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = g;
+        desigSelect.appendChild(opt);
+      });
+    }
+
+    function validateStep1() {
+      const empId = $("empId").value.trim();
+      const employeeName = $("employeeName").value.trim();
+      const department = $("department").value.trim();
+      const designation = $("designation").value.trim();
+      const queryType = $("queryType").value.trim();
+
+      if (!empId || !employeeName || !department || !designation || !queryType) {
+        $("step1Error").style.display = "block";
+        $("step1Error").textContent = "Please fill in all fields before proceeding.";
+        return false;
+      }
+      $("step1Error").style.display = "none";
+      $("step1Error").textContent = "";
+      return true;
+    }
+
+    function setupFileBox() {
+      const fileBox = $("fileBox");
+      const fileInput = $("fileInput");
+      const fileInfo = $("fileInfo");
+      const fileNameEl = $("fileName");
+      const fileRemove = $("fileRemove");
+      const fileBoxText = $("fileBoxText");
+
+      fileBox.addEventListener("click", () => fileInput.click());
+
+      fileBox.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        fileBox.classList.add("dragover");
+      });
+
+      fileBox.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        fileBox.classList.remove("dragover");
+      });
+
+      fileBox.addEventListener("drop", (e) => {
+        e.preventDefault();
+        fileBox.classList.remove("dragover");
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          const file = e.dataTransfer.files[0];
+          handleFile(file);
+        }
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) handleFile(file);
+      });
+
+      function handleFile(file) {
+        if (file.size > 10 * 1024 * 1024) {
+          showToast("File too large. Please upload a file smaller than 10MB.", true);
+          return;
+        }
+        selectedFile = file;
+        fileNameEl.textContent = file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
+        fileInfo.style.display = "block";
+        fileBoxText.style.display = "none";
+      }
+
+      fileRemove.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectedFile = null;
+        fileInput.value = "";
+        fileInfo.style.display = "none";
+        fileBoxText.style.display = "block";
+      });
+    }
+
+    async function submitForm() {
+      const queryDetails = $("queryDetails").value.trim();
+      if (!queryDetails) {
+        $("step2Error").style.display = "block";
+        $("step2Error").textContent = "Please provide details about your query.";
+        return;
+      }
+      $("step2Error").style.display = "none";
+
+      const btnSubmit = $("btnSubmit");
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = "Submitting...";
+
+      const payload = {
+        empId: $("empId").value.trim(),
+        employeeName: $("employeeName").value.trim(),
+        department: $("department").value.trim(),
+        designation: $("designation").value.trim(),
+        queryType: $("queryType").value.trim(),
+        queryDetails: queryDetails,
+        uploadedFile: selectedFile ? selectedFile.name : "",
+        employeeEmail: ""
+      };
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!data.ok) {
+          throw new Error(data.error || "Submission failed");
+        }
+
+        showToast("Query submitted successfully.");
+        const ref = data.refId || ("QRMS-" + Date.now().toString().slice(-8));
+        $("refCode").textContent = ref;
+
+        setStep(3);
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || "Error submitting query", true);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "Submit";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadMeta();
+      setupFileBox();
+
+      $("department").addEventListener("change", onDepartmentChange);
+
+      $("btnNext1").addEventListener("click", () => {
+        if (!validateStep1()) return;
+        const qt = $("queryType").value.trim() || "–";
+        $("queryTypeTag").textContent = "Query Type: " + qt;
+        setStep(2);
+      });
+
+      $("btnBack2").addEventListener("click", () => {
+        setStep(1);
+      });
+
+      $("btnSubmit").addEventListener("click", submitForm);
+    });
+  </script>
+</body>
+</html>
