@@ -5,510 +5,353 @@
   <title>HR Helpline – Burma Burma</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <style>
-    :root {
-      --primary: #2563eb;
-      --accent: #22c55e;
-      --bg: #020617;
-      --card-bg: #020617;
-      --text: #e5e7eb;
-      --muted: #6b7280;
-      --border: #1f2937;
-      --error: #ef4444;
-    }
+  <!-- Bootstrap 5 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
 
-    * {
-      box-sizing: border-box;
+  <style>
+    body {
+      background: radial-gradient(circle at top, #ffffff 0, #f3f6fb 45%, #e5edf7 100%);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 900px;
-    }
-
-    .card {
-      background: radial-gradient(circle at top left, #0b1120 0, #020617 50%, #020617 100%);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 24px 20px 28px;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.75);
-      backdrop-filter: blur(18px);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .logo {
-      width: 120px;
+    .bb-logo {
+      width: 110px;
       height: auto;
-      margin-bottom: 10px;
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+      filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.3));
     }
 
-    .title {
-      font-size: 28px;
+    .page-title {
       font-weight: 800;
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin: 0 0 6px;
+      font-size: 2.25rem;
+      color: #1d4ed8;
     }
 
-    .subtitle {
-      margin: 0;
-      font-size: 14px;
-      color: var(--muted);
+    .page-subtitle {
+      color: #6b7280;
+      font-size: 0.95rem;
     }
 
-    .steps {
+    .card-helpline {
+      border-radius: 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    .stepper {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
     }
 
-    .step {
+    .stepper-item {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      font-size: 12px;
+      gap: 0.2rem;
+      font-size: 0.8rem;
+      color: #6b7280;
     }
 
     .step-circle {
-      width: 26px;
-      height: 26px;
+      width: 34px;
+      height: 34px;
       border-radius: 999px;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
       font-weight: 600;
-      background: #020617;
-      color: var(--muted);
-      border: 1px solid #1f2937;
+      font-size: 0.9rem;
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 10px rgba(148, 163, 184, 0.4);
+      color: #60a5fa;
     }
 
-    .step-circle.active,
-    .step-circle.done {
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      color: #fff;
-      box-shadow: 0 0 12px rgba(37,99,235,0.7);
-      border-color: transparent;
+    .stepper-item.active .step-circle {
+      background: #1d9bf0;
+      border-color: #1d9bf0;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
     }
 
-    .step-label {
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+    .stepper-item.completed .step-circle {
+      background: #e0f2fe;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+      box-shadow: none;
     }
 
-    .step-label.active,
-    .step-label.done {
-      color: #d1d5db;
+    .stepper-item.active .step-label {
+      color: #111827;
+      font-weight: 600;
     }
 
     .step-line {
-      width: 46px;
+      width: 60px;
       height: 2px;
       border-radius: 999px;
-      background: #111827;
+      background-color: #e5e7eb;
     }
 
-    .step-line.done {
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      box-shadow: 0 0 10px rgba(37,99,235,0.7);
+    .step-line.completed {
+      background-color: #1d9bf0;
     }
 
-    .form-section {
-      display: none;
-      margin-top: 10px;
+    .form-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #111827;
     }
 
-    .form-section.active {
-      display: block;
+    .form-control, .form-select {
+      border-radius: 0.75rem;
+      border-color: #e5e7eb;
+      background-color: #f9fafb;
+      font-size: 0.9rem;
+      padding: 0.65rem 0.9rem;
     }
 
-    .field-row {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
+    .form-control:focus, .form-select:focus, textarea:focus {
+      border-color: #1d9bf0;
+      box-shadow: 0 0 0 0.15rem rgba(29, 155, 240, 0.35);
+      background-color: #ffffff;
     }
 
-    .field {
-      margin-bottom: 14px;
-      flex: 1 1 200px;
-    }
-
-    .label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 5px;
-      color: #e5e7eb;
-    }
-
-    .input,
-    .select,
-    .textarea {
-      width: 100%;
-      padding: 9px 10px;
-      border-radius: 8px;
-      border: 1px solid #1f2937;
-      background: #020617;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-    }
-
-    .input:focus,
-    .select:focus,
-    .textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7);
-      background: #020617;
-    }
-
-    .textarea {
+    textarea.form-control {
       min-height: 130px;
       resize: vertical;
     }
 
-    .hint {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    .btn {
-      flex: 1 1 auto;
-      padding: 11px 14px;
-      border-radius: 999px;
+    .btn-gradient {
+      background: linear-gradient(to right, #1d9bf0, #34d399);
       border: none;
-      font-size: 14px;
+      color: #ffffff;
       font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, opacity 0.2s;
-    }
-
-    .btn-primary {
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      color: #f9fafb;
-      box-shadow: 0 12px 30px rgba(37,99,235,0.55);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 36px rgba(37,99,235,0.7);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: #e5e7eb;
-      border: 1px solid #374151;
-    }
-
-    .btn-outline:hover {
-      background: #020617;
-      border-color: #4b5563;
-    }
-
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .file-box {
-      border-radius: 10px;
-      border: 1px dashed #374151;
-      padding: 18px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      background: #020617;
-    }
-
-    .file-box.dragover {
-      border-color: var(--primary);
-      background: rgba(37,99,235,0.1);
-    }
-
-    .file-name {
-      font-size: 13px;
-      margin-top: 8px;
-      color: #d1d5db;
-    }
-
-    .file-remove {
-      font-size: 11px;
-      color: var(--muted);
-      text-decoration: underline;
-      cursor: pointer;
-      margin-top: 2px;
-    }
-
-    .error {
-      margin-top: 4px;
-      font-size: 12px;
-      color: var(--error);
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 9px;
       border-radius: 999px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      background: rgba(37,99,235,0.15);
-      color: #bfdbfe;
-      border: 1px solid rgba(37,99,235,0.4);
-      margin-bottom: 8px;
+      padding: 0.7rem 1.2rem;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-gradient:hover {
+      box-shadow: 0 14px 36px rgba(37, 99, 235, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline-secondary {
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .query-type-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background-color: #e0f2fe;
+      border: 1px solid #bfdbfe;
+      font-size: 0.75rem;
+      color: #1d4ed8;
+      margin-bottom: 0.5rem;
     }
 
     .success-icon {
-      width: 70px;
-      height: 70px;
-      border-radius: 999px;
-      margin: 0 auto 12px;
-      background: radial-gradient(circle, #4ade80 0, #15803d 50%, #052e16 100%);
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #4ade80 0, #22c55e 45%, #16a34a 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 18px 40px rgba(34,197,94,0.65);
+      box-shadow: 0 18px 40px rgba(34, 197, 94, 0.4);
+      margin: 0 auto 1rem;
     }
 
     .success-icon svg {
-      width: 42px;
-      height: 42px;
-      fill: none;
-      stroke: white;
+      width: 40px;
+      height: 40px;
+      stroke: #ffffff;
       stroke-width: 2;
     }
 
-    .center {
-      text-align: center;
-    }
-
     .ref-box {
-      margin-top: 18px;
-      padding: 11px 14px;
-      border-radius: 12px;
-      border: 1px solid #1f2937;
-      background: #020617;
-      font-size: 13px;
-      color: var(--muted);
+      border-radius: 0.75rem;
+      border: 1px solid #e5e7eb;
+      background-color: #f9fafb;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.85rem;
+      color: #6b7280;
     }
 
     .ref-code {
       font-family: "SF Mono", Menlo, Consolas, monospace;
       font-weight: 600;
-      color: #e5e7eb;
-    }
-
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      max-width: 320px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 13px;
-      background: rgba(15,23,42,0.98);
-      color: #e5e7eb;
-      border: 1px solid #1f2937;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-      z-index: 9999;
-      display: none;
-    }
-
-    .toast.show {
-      display: block;
-      animation: fadeInOut 3s ease forwards;
-    }
-
-    .toast-error {
-      border-color: rgba(239,68,68,0.6);
-      color: #fecaca;
-    }
-
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(10px); }
-      10% { opacity: 1; transform: translateY(0); }
-      80% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(10px); }
+      color: #111827;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="header">
-        <!-- logo image must be in repo root with this exact name -->
-        <img src="Copy%20of%20BB_Logo_Display-01.png" alt="Burma Burma Logo" class="logo" />
-        <h1 class="title">HR Helpline</h1>
-        <p class="subtitle">Query &amp; Request Management System</p>
-      </div>
-
-      <!-- step indicator -->
-      <div class="steps">
-        <div class="step">
-          <div class="step-circle" data-step-circle="1">1</div>
-          <div class="step-label" data-step-label="1">Details</div>
-        </div>
-        <div class="step-line" data-step-line="1"></div>
-        <div class="step">
-          <div class="step-circle" data-step-circle="2">2</div>
-          <div class="step-label" data-step-label="2">Query</div>
-        </div>
-        <div class="step-line" data-step-line="2"></div>
-        <div class="step">
-          <div class="step-circle" data-step-circle="3">3</div>
-          <div class="step-label" data-step-label="3">Done</div>
-        </div>
-      </div>
-
-      <!-- STEP 1 -->
-      <div class="form-section active" id="step-1">
-        <div class="field-row">
-          <div class="field">
-            <label class="label" for="empId">Employee ID</label>
-            <input id="empId" class="input" />
-          </div>
-          <div class="field">
-            <label class="label" for="employeeName">Employee Name</label>
-            <input id="employeeName" class="input" />
-          </div>
+  <div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="text-center mb-4">
+          <!-- Logo file must exist in repo root with this name -->
+          <img src="Copy%20of%20BB_Logo_Display-01.png" alt="Burma Burma Logo" class="bb-logo mb-2" />
+          <div class="page-title">HR Helpline</div>
+          <div class="page-subtitle">Query &amp; Request Management System</div>
         </div>
 
-        <div class="field-row">
-          <div class="field">
-            <label class="label" for="department">Department</label>
-            <select id="department" class="select">
-              <option value="">Loading...</option>
-            </select>
-            <div class="hint" id="deptHint">Departments loaded from sheet "Dept &amp; Desig"</div>
-          </div>
-          <div class="field">
-            <label class="label" for="designation">Designation</label>
-            <select id="designation" class="select" disabled>
-              <option value="">Select Department first</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label" for="queryType">Query Type</label>
-          <select id="queryType" class="select">
-            <option value="">Select Query Type</option>
-            <option value="Salary">Salary</option>
-            <option value="SC">SC (Special Consideration)</option>
-            <option value="POSH">POSH (Prevention of Sexual Harassment)</option>
-            <option value="Refer a Friend">Refer a Friend</option>
-            <option value="Leave Management">Leave Management</option>
-            <option value="Benefits & Compensation">Benefits & Compensation</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div id="step1Error" class="error" style="display:none;"></div>
-
-        <div class="buttons">
-          <button type="button" class="btn btn-primary" id="btnNext1">Next →</button>
-        </div>
-      </div>
-
-      <!-- STEP 2 -->
-      <div class="form-section" id="step-2">
-        <div class="tag" id="queryTypeTag">Query Type: –</div>
-
-        <div class="field">
-          <label class="label" for="queryDetails">Query Details</label>
-          <textarea id="queryDetails" class="textarea" placeholder="Please describe your query in detail..."></textarea>
-        </div>
-
-        <div class="field">
-          <label class="label" for="fileInput">Attach Document (optional)</label>
-          <div class="file-box" id="fileBox">
-            <input type="file" id="fileInput" style="display:none;" />
-            <div id="fileBoxText">
-              Click to upload or drag and drop<br />
-              <span class="hint">PDF, DOC, TXT, JPG, PNG (Max 10MB)</span>
+        <div class="card card-helpline">
+          <div class="card-body p-4 p-md-5">
+            <!-- Stepper -->
+            <div class="stepper mb-4" id="stepper">
+              <div class="stepper-item active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Details</div>
+              </div>
+              <div class="step-line" data-step-line="1"></div>
+              <div class="stepper-item" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Query</div>
+              </div>
+              <div class="step-line" data-step-line="2"></div>
+              <div class="stepper-item" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Done</div>
+              </div>
             </div>
-            <div id="fileInfo" style="display:none;">
-              <div class="file-name" id="fileName"></div>
-              <div class="file-remove" id="fileRemove">Remove file</div>
+
+            <!-- Alerts -->
+            <div id="alert-container" class="mb-3" style="display:none;">
+              <div id="alert" class="alert alert-danger mb-0" role="alert"></div>
+            </div>
+
+            <!-- STEP 1 -->
+            <div id="step-1" class="step-pane">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="empId" class="form-label">Employee ID</label>
+                  <input type="text" id="empId" class="form-control" placeholder="Enter your employee ID" />
+                </div>
+                <div class="col-md-6">
+                  <label for="employeeName" class="form-label">Employee Name</label>
+                  <input type="text" id="employeeName" class="form-control" placeholder="Enter your full name" />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="department" class="form-label">Department</label>
+                  <select id="department" class="form-select">
+                    <option value="">Loading departments...</option>
+                  </select>
+                  <small class="text-muted" id="deptHint">
+                    Departments are loaded from the "Dept &amp; Desig" sheet.
+                  </small>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="designation" class="form-label">Designation</label>
+                  <select id="designation" class="form-select" disabled>
+                    <option value="">Select Department first</option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label for="queryType" class="form-label">Query Type</label>
+                  <select id="queryType" class="form-select">
+                    <option value="">Select Query Type</option>
+                    <option value="Salary">Salary</option>
+                    <option value="SC">SC (Special Consideration)</option>
+                    <option value="POSH">POSH (Prevention of Sexual Harassment)</option>
+                    <option value="Refer a Friend">Refer a Friend</option>
+                    <option value="Leave Management">Leave Management</option>
+                    <option value="Benefits & Compensation">Benefits & Compensation</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-4">
+                <button class="btn btn-gradient px-5" id="btnNext1">
+                  Next →
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div id="step-2" class="step-pane d-none">
+              <div class="query-type-tag mb-2" id="queryTypeTag">Query Type: –</div>
+
+              <div class="mb-3">
+                <label for="queryDetails" class="form-label">Query Details</label>
+                <textarea
+                  id="queryDetails"
+                  class="form-control"
+                  placeholder="Please describe your query in detail..."
+                ></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label for="fileInput" class="form-label">Attach Document (optional)</label>
+                <input class="form-control" type="file" id="fileInput" />
+                <small class="text-muted">
+                  Accepted: PDF, DOC, TXT, JPG, PNG (Max 10 MB). Only the file name is stored in the sheet.
+                </small>
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-outline-secondary" id="btnBack2">
+                  ← Back
+                </button>
+                <button class="btn btn-gradient px-5" id="btnSubmit">
+                  Submit
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div id="step-3" class="step-pane d-none text-center">
+              <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5"></circle>
+                  <path d="M7 13l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+
+              <h4 class="mb-1">Thank you!</h4>
+              <p class="text-muted mb-3">
+                Your query has been submitted to HR. We will get back to you soon.
+              </p>
+
+              <div class="ref-box mb-3 text-start mx-auto" style="max-width: 320px;">
+                <div>Reference ID:</div>
+                <div id="refCode" class="ref-code">QRMS-XXXXXXXX</div>
+              </div>
+
+              <p class="text-muted" style="font-size: 0.85rem;">
+                Please note this Reference ID for any follow-up with the HR team.
+              </p>
             </div>
           </div>
         </div>
-
-        <div id="step2Error" class="error" style="display:none;"></div>
-
-        <div class="buttons">
-          <button type="button" class="btn btn-outline" id="btnBack2">← Back</button>
-          <button type="button" class="btn btn-primary" id="btnSubmit">Submit</button>
-        </div>
-      </div>
-
-      <!-- STEP 3 -->
-      <div class="form-section" id="step-3">
-        <div class="center">
-          <div class="success-icon">
-            <svg viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5" fill="none"></circle>
-              <path d="M7 13l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-          </div>
-          <h2 style="margin: 0 0 4px; font-size: 24px;">Thank You!</h2>
-          <p style="margin:0; color:var(--muted); font-size:14px;">
-            Your query has been successfully submitted.
-          </p>
-        </div>
-
-        <div class="ref-box">
-          <div style="margin-bottom:4px;">Reference ID:</div>
-          <div class="ref-code" id="refCode">QRMS-XXXXXXXX</div>
-        </div>
-
-        <p class="hint" style="margin-top:16px;">
-          You can refer to this Reference ID while following up with HR.
-        </p>
       </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <!-- Bootstrap JS (for components – not strictly required but handy) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
 
   <script>
-    // Apps Script Web App URL
+    // === CONFIG – your Apps Script Web App URL ===
     const APPS_SCRIPT_URL =
       "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
 
@@ -519,37 +362,39 @@
 
     const $ = (id) => document.getElementById(id);
 
-    function showToast(message, isError = false) {
-      const toast = $("toast");
-      toast.textContent = message;
-      toast.className = "toast" + (isError ? " toast-error" : "");
-      void toast.offsetWidth;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3000);
+    function showAlert(message, type = "danger") {
+      const container = $("alert-container");
+      const alert = $("alert");
+      alert.className = "alert alert-" + type + " mb-0";
+      alert.textContent = message;
+      container.style.display = "block";
+    }
+
+    function hideAlert() {
+      $("alert-container").style.display = "none";
     }
 
     function setStep(step) {
       currentStep = step;
+      // panes
       for (let i = 1; i <= 3; i++) {
-        const sec = $("step-" + i);
-        sec.classList.toggle("active", i === step);
-
-        const circle = document.querySelector('[data-step-circle="' + i + '"]');
-        const label = document.querySelector('[data-step-label="' + i + '"]');
-        const line = document.querySelector('[data-step-line="' + i + '"]');
-
-        if (circle) {
-          circle.classList.toggle("active", i === step);
-          circle.classList.toggle("done", i < step);
-        }
-        if (label) {
-          label.classList.toggle("active", i === step);
-          label.classList.toggle("done", i < step);
-        }
-        if (line) {
-          line.classList.toggle("done", i < step);
-        }
+        const pane = $("step-" + i);
+        pane.classList.toggle("d-none", i !== step);
       }
+
+      // stepper UI
+      document.querySelectorAll(".stepper-item").forEach((el) => {
+        const s = parseInt(el.getAttribute("data-step"), 10);
+        el.classList.remove("active", "completed");
+        if (s === step) el.classList.add("active");
+        if (s < step) el.classList.add("completed");
+      });
+      document.querySelectorAll(".step-line").forEach((line, idx) => {
+        const s = idx + 1;
+        line.classList.toggle("completed", s < step);
+      });
+
+      hideAlert();
     }
 
     async function loadMeta() {
@@ -557,15 +402,12 @@
       const desigSelect = $("designation");
       const deptHint = $("deptHint");
 
-      deptSelect.innerHTML = '<option value="">Loading...</option>';
+      deptSelect.innerHTML = '<option value="">Loading departments...</option>';
       desigSelect.innerHTML = '<option value="">Select Department first</option>';
       desigSelect.disabled = true;
 
       try {
-        // IMPORTANT: send cookies so domain-restricted web app works
-        const res = await fetch(APPS_SCRIPT_URL + "?action=meta", {
-          credentials: "include"
-        });
+        const res = await fetch(APPS_SCRIPT_URL + "?action=meta");
         const json = await res.json();
 
         if (!json.ok) {
@@ -583,12 +425,12 @@
           deptSelect.appendChild(opt);
         });
 
-        deptHint.textContent = 'Departments loaded from sheet "Dept & Desig".';
+        deptHint.textContent = 'Departments loaded from "Dept & Desig".';
       } catch (err) {
         console.error(err);
         deptSelect.innerHTML = '<option value="">Error loading departments</option>';
         deptHint.textContent = "Error loading metadata – please try again later.";
-        showToast("Error loading Departments from sheet", true);
+        showAlert("Error loading Departments from sheet. Please refresh and try again.", "danger");
       }
     }
 
@@ -628,82 +470,27 @@
       const queryType = $("queryType").value.trim();
 
       if (!empId || !employeeName || !department || !designation || !queryType) {
-        $("step1Error").style.display = "block";
-        $("step1Error").textContent = "Please fill in all fields before proceeding.";
+        showAlert("Please fill in all fields before proceeding.", "danger");
         return false;
       }
-      $("step1Error").style.display = "none";
-      $("step1Error").textContent = "";
+      hideAlert();
       return true;
-    }
-
-    function setupFileBox() {
-      const fileBox = $("fileBox");
-      const fileInput = $("fileInput");
-      const fileInfo = $("fileInfo");
-      const fileNameEl = $("fileName");
-      const fileRemove = $("fileRemove");
-      const fileBoxText = $("fileBoxText");
-
-      fileBox.addEventListener("click", () => fileInput.click());
-
-      fileBox.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        fileBox.classList.add("dragover");
-      });
-
-      fileBox.addEventListener("dragleave", (e) => {
-        e.preventDefault();
-        fileBox.classList.remove("dragover");
-      });
-
-      fileBox.addEventListener("drop", (e) => {
-        e.preventDefault();
-        fileBox.classList.remove("dragover");
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          const file = e.dataTransfer.files[0];
-          handleFile(file);
-        }
-      });
-
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) handleFile(file);
-      });
-
-      function handleFile(file) {
-        if (file.size > 10 * 1024 * 1024) {
-          showToast("File too large. Please upload a file smaller than 10MB.", true);
-          return;
-        }
-        selectedFile = file;
-        fileNameEl.textContent =
-          file.name + " (" + (file.size / 1024).toFixed(1) + " KB)";
-        fileInfo.style.display = "block";
-        fileBoxText.style.display = "none";
-      }
-
-      fileRemove.addEventListener("click", (e) => {
-        e.stopPropagation();
-        selectedFile = null;
-        fileInput.value = "";
-        fileInfo.style.display = "none";
-        fileBoxText.style.display = "block";
-      });
     }
 
     async function submitForm() {
       const queryDetails = $("queryDetails").value.trim();
       if (!queryDetails) {
-        $("step2Error").style.display = "block";
-        $("step2Error").textContent = "Please provide details about your query.";
+        showAlert("Please provide details about your query.", "danger");
         return;
       }
-      $("step2Error").style.display = "none";
 
+      hideAlert();
       const btnSubmit = $("btnSubmit");
       btnSubmit.disabled = true;
       btnSubmit.textContent = "Submitting...";
+
+      const fileInput = $("fileInput");
+      selectedFile = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
       const payload = {
         empId: $("empId").value.trim(),
@@ -713,7 +500,7 @@
         queryType: $("queryType").value.trim(),
         queryDetails: queryDetails,
         uploadedFile: selectedFile ? selectedFile.name : "",
-        employeeEmail: ""
+        employeeEmail: "" // will be auto-filled by Apps Script if possible
       };
 
       try {
@@ -722,8 +509,7 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(payload),
-          credentials: "include"   // send cookies for domain-only web app
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -731,14 +517,13 @@
           throw new Error(data.error || "Submission failed");
         }
 
-        showToast("Query submitted successfully.");
         const ref = data.refId || ("QRMS-" + Date.now().toString().slice(-8));
         $("refCode").textContent = ref;
 
         setStep(3);
       } catch (err) {
         console.error(err);
-        showToast(err.message || "Error submitting query", true);
+        showAlert(err.message || "Error submitting query. Please try again.", "danger");
       } finally {
         btnSubmit.disabled = false;
         btnSubmit.textContent = "Submit";
@@ -747,7 +532,6 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       loadMeta();
-      setupFileBox();
 
       $("department").addEventListener("change", onDepartmentChange);
 
