@@ -118,16 +118,24 @@ function onDepartmentChange() {
 }
 
 function validateStep1() {
-  const empId = $("empId").value.trim();
-  const employeeName = $("employeeName").value.trim();
-  const department = $("department").value.trim();
-  const designation = $("designation").value.trim();
-  const queryType = $("queryType").value.trim();
+  const empId         = $("empId").value.trim();
+  const employeeName  = $("employeeName").value.trim();
+  const employeeEmail = $("employeeEmail").value.trim();
+  const department    = $("department").value.trim();
+  const designation   = $("designation").value.trim();
+  const queryType     = $("queryType").value.trim();
 
-  if (!empId || !employeeName || !department || !designation || !queryType) {
+  if (!empId || !employeeName || !employeeEmail || !department || !designation || !queryType) {
     showAlert("Please fill in all fields before proceeding.", "danger");
     return false;
   }
+
+  // very simple email check
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(employeeEmail)) {
+    showAlert("Please enter a valid email address.", "danger");
+    return false;
+  }
+
   hideAlert();
   return true;
 }
@@ -177,7 +185,7 @@ async function submitForm() {
       designation: $("designation").value.trim(),
       queryType: $("queryType").value.trim(),
       queryDetails: queryDetails,
-      employeeEmail: "", // Apps Script may auto-fill via Session
+      employeeEmail:  $("employeeEmail").value.trim(),  // send from UI
       filename,
       mimeType,
       bytes
