@@ -36,6 +36,7 @@ function setStep(step) {
     if (s === step) el.classList.add("active");
     if (s < step) el.classList.add("completed");
   });
+
   document.querySelectorAll(".step-line").forEach((line, idx) => {
     const s = idx + 1;
     line.classList.toggle("completed", s < step);
@@ -72,11 +73,15 @@ async function loadMeta() {
       deptSelect.appendChild(opt);
     });
 
-    deptHint.textContent = 'Departments loaded from "Dept & Desig".';
+    if (deptHint) {
+      deptHint.textContent = "";
+    }
   } catch (err) {
     console.error(err);
     deptSelect.innerHTML = '<option value="">Error loading departments</option>';
-    deptHint.textContent = "Error loading metadata – please try again later.";
+    if (deptHint) {
+      deptHint.textContent = "";
+    }
     showAlert(
       "Error loading Departments from sheet. Please refresh and try again.",
       "danger"
@@ -127,8 +132,8 @@ function validateStep1() {
   return true;
 }
 
-// Submit using hidden HTML form + iframe (no CORS)
-function submitForm() {
+// === SUBMIT STEP ===
+async function submitForm() {
   const queryDetails = $("queryDetails").value.trim();
   if (!queryDetails) {
     showAlert("Please provide details about your query.", "danger");
@@ -140,49 +145,73 @@ function submitForm() {
   btnSubmit.disabled = true;
   btnSubmit.textContent = "Submitting...";
 
+  // File (optional)
   const fileInput = $("fileInput");
-  const selectedFileName =
-    fileInput.files && fileInput.files[0] ? fileInput.files[0].name : "";
+  const file =
+    fileInput && fileInput.files && fileInput.files[0]
+      ? fileInput.files[0]
+      : null;
 
-  const payload = {
-    empId: $("empId").value.trim(),
-    employeeName: $("employeeName").value.trim(),
-    department: $("department").value.trim(),
-    designation: $("designation").value.trim(),
-    queryType: $("queryType").value.trim(),
-    queryDetails: queryDetails,
-    uploadedFile: selectedFileName,
-    employeeEmail: "" // Apps Script may auto-fill from Session
-  };
+  let bytes = null;
+  let filename = "";
+  let mimeType = "";
 
-  const form = document.createElement("form");
-  form.style.display = "none";
-  form.method = "POST";
-  form.action = APPS_SCRIPT_URL;
-  form.target = "hidden_iframe";
+  try {
+    if (file) {
+      const buffer = await file.arrayBuffer();
+      bytes = Array.from(new Int8Array(buffer));
+      filename = file.name;
+      mimeType = file.type || "application/octet-stream";
 
-  Object.entries(payload).forEach(([name, value]) => {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = name;
-    input.value = value;
-    form.appendChild(input);
-  });
+      // simple size guard: 10 MB max
+      const maxSizeBytes = 10 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        throw new Error("File is larger than 10MB. Please upload a smaller file.");
+      }
+    }
 
-  document.body.appendChild(form);
-  form.submit();
+    const payload = {
+      empId: $("empId").value.trim(),
+      employeeName: $("employeeName").value.trim(),
+      department: $("department").value.trim(),
+      designation: $("designation").value.trim(),
+      queryType: $("queryType").value.trim(),
+      queryDetails: queryDetails,
+      employeeEmail: "", // Apps Script may auto-fill via Session
+      filename,
+      mimeType,
+      bytes
+    };
 
-  const ref = "QRMS-" + Date.now().toString().slice(-8);
-  $("refCode").textContent = ref;
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      // IMPORTANT: no custom headers → browser uses text/plain, no CORS preflight
+      body: JSON.stringify(payload)
+    });
 
-  setTimeout(() => {
+    const data = await res.json();
+    if (!data.ok) {
+      throw new Error(data.error || "Submission failed");
+    }
+
+    const ref =
+      data.refId || "QRMS-" + Date.now().toString().slice(-8);
+    $("refCode").textContent = ref;
+
+    setStep(3);
+  } catch (err) {
+    console.error(err);
+    showAlert(
+      err.message || "Error submitting query. Please try again.",
+      "danger"
+    );
+  } finally {
     btnSubmit.disabled = false;
     btnSubmit.textContent = "Submit";
-    setStep(3);
-    document.body.removeChild(form);
-  }, 500);
+  }
 }
 
+// === INIT ===
 function init() {
   loadMeta();
 
