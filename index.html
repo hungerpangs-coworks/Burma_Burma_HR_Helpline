@@ -5,15 +5,12 @@
   <title>Burma Burma | HR Helpline</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Favicon: Burma Burma logo --!-- High-resolution Favicon -->
-<link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="512x512">
-<link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="256x256">
-<link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="128x128">
-<link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="32x32">
-
-<!-- Apple / iPhone -->
-<link rel="apple-touch-icon" href="BB_Logo_favicon.png">
-
+  <!-- Favicon: Burma Burma logo -->
+  <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="512x512">
+  <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="256x256">
+  <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="128x128">
+  <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="BB_Logo_favicon.png">
 
   <!-- Bootstrap 5 CSS -->
   <link
@@ -257,40 +254,19 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="employeeEmail" class="form-label">Employee Email</label>
-                  <input
-                    type="email"
-                    id="employeeEmail"
-                    class="form-control"
-                    placeholder="yourname@burmaburma.in"
-                  />
-                </div>
-                
-                <div class="col-md-6">
-                  <label for="department" class="form-label">Department</label>
-                  <select id="department" class="form-select">
-                    <option value="">Loading departments...</option>
-                  </select>
-                  <!-- hint hidden now -->
-                  <small class="text-muted" id="deptHint" style="display:none;"></small>
-                </div>
-
-                <div class="col-md-6">
-                  <label for="designation" class="form-label">Designation</label>
-                  <select id="designation" class="form-select" disabled>
-                    <option value="">Select Department first</option>
+                  <label for="jobLocation" class="form-label">Job Location</label>
+                  <select id="jobLocation" class="form-select">
+                    <option value="">Loading job locations...</option>
                   </select>
                 </div>
 
-                <div class="col-md-12">
+                <div class="col-md-6">
                   <label for="queryType" class="form-label">Query Type</label>
                   <select id="queryType" class="form-select">
                     <option value="">Select Query Type</option>
                     <option value="Salary">Salary</option>
-                    <option value="SC">Service Charge</option>
-                    <option value="POSH">POSH (Prevention of Sexual Harassment)</option>
-                    <option value="Refer a Friend">Refer a Friend</option>
-                    <option value="Other">Other</option>
+                    <option value="Service Charge">Service Charge</option>
+                    <option value="Other">Others</option>
                   </select>
                 </div>
               </div>
@@ -323,13 +299,19 @@
                 </small>
               </div>
 
-              <div class="d-flex justify-content-between mt-4">
+              <div class="d-flex flex-wrap justify-content-between gap-2 mt-4">
                 <button class="btn btn-outline-secondary" id="btnBack2">
                   ← Back
                 </button>
-                <button class="btn btn-gradient px-5" id="btnSubmit">
-                  Submit
-                </button>
+
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary" id="btnCallback">
+                    Request a Callback
+                  </button>
+                  <button class="btn btn-gradient px-5" id="btnSubmitQuery">
+                    Submit Query
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -344,7 +326,7 @@
 
               <h4 class="mb-1">Thank you!</h4>
               <p class="text-muted mb-3">
-                Your query has been submitted to HR. We will get back to you soon.
+                Your request has been submitted to HR. We will get back to you soon.
               </p>
 
               <div class="ref-box mb-3 text-start mx-auto" style="max-width: 320px;">
