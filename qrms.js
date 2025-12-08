@@ -1,13 +1,19 @@
-// === CONFIG: Your Apps Script Web App URL ===
+// =======================
+// CONFIG
+// =======================
 const APPS_SCRIPT_URL =
-  "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
+  "YOUR_WEB_APP_URL_HERE"; 
+// Example: https://script.google.com/macros/s/AKfycbxxxxx/exec
 
 let currentStep = 1;
-let deptMap = {};
-let departments = [];
+let locations = [];
 
+// Quick DOM helper
 const $ = (id) => document.getElementById(id);
 
+// =======================
+// ALERT HANDLING
+// =======================
 function showAlert(message, type = "danger") {
   const container = $("alert-container");
   const alert = $("alert");
@@ -20,119 +26,72 @@ function hideAlert() {
   $("alert-container").style.display = "none";
 }
 
+// =======================
+// SET ACTIVE STEP
+// =======================
 function setStep(step) {
   currentStep = step;
 
-  // panes
   for (let i = 1; i <= 3; i++) {
-    const pane = $("step-" + i);
-    pane.classList.toggle("d-none", i !== step);
+    $("step-" + i).classList.toggle("d-none", i !== step);
   }
 
-  // stepper UI
   document.querySelectorAll(".stepper-item").forEach((el) => {
-    const s = parseInt(el.getAttribute("data-step"), 10);
+    const s = parseInt(el.dataset.step, 10);
     el.classList.remove("active", "completed");
     if (s === step) el.classList.add("active");
     if (s < step) el.classList.add("completed");
   });
 
   document.querySelectorAll(".step-line").forEach((line, idx) => {
-    const s = idx + 1;
-    line.classList.toggle("completed", s < step);
+    line.classList.toggle("completed", idx + 1 < step);
   });
 
   hideAlert();
 }
 
+// =======================
+// LOAD JOB LOCATIONS
+// =======================
 async function loadMeta() {
-  const deptSelect = $("department");
-  const desigSelect = $("designation");
-  const deptHint = $("deptHint");
-
-  deptSelect.innerHTML = '<option value="">Loading departments...</option>';
-  desigSelect.innerHTML = '<option value="">Select Department first</option>';
-  desigSelect.disabled = true;
+  const locSelect = $("jobLocation");
+  locSelect.innerHTML = '<option value="">Loading...</option>';
 
   try {
     const res = await fetch(APPS_SCRIPT_URL + "?action=meta");
     const json = await res.json();
 
-    if (!json.ok) {
-      throw new Error(json.error || "Failed to load metadata");
-    }
+    if (!json.ok) throw new Error(json.error);
 
-    departments = json.departments || [];
-    deptMap = json.deptMap || {};
+    locations = json.locations || [];
 
-    deptSelect.innerHTML = '<option value="">Select Department</option>';
-    departments.forEach((d) => {
+    locSelect.innerHTML = '<option value="">Select Job Location</option>';
+
+    locations.forEach((loc) => {
       const opt = document.createElement("option");
-      opt.value = d;
-      opt.textContent = d;
-      deptSelect.appendChild(opt);
+      opt.value = loc;
+      opt.textContent = loc;
+      locSelect.appendChild(opt);
     });
 
-    if (deptHint) {
-      deptHint.textContent = "";
-    }
   } catch (err) {
     console.error(err);
-    deptSelect.innerHTML = '<option value="">Error loading departments</option>';
-    if (deptHint) {
-      deptHint.textContent = "";
-    }
-    showAlert(
-      "Error loading Departments from sheet. Please refresh and try again.",
-      "danger"
-    );
+    locSelect.innerHTML = '<option value="">Error loading locations</option>';
+    showAlert("Unable to load Job Locations. Please refresh the page.");
   }
 }
 
-function onDepartmentChange() {
-  const dept = $("department").value;
-  const desigSelect = $("designation");
-  desigSelect.innerHTML = "";
-
-  if (!dept || !deptMap[dept] || deptMap[dept].length === 0) {
-    desigSelect.disabled = true;
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = dept ? "No designations found" : "Select Department first";
-    desigSelect.appendChild(opt);
-    return;
-  }
-
-  desigSelect.disabled = false;
-  const emptyOpt = document.createElement("option");
-  emptyOpt.value = "";
-  emptyOpt.textContent = "Select Designation";
-  desigSelect.appendChild(emptyOpt);
-
-  deptMap[dept].forEach((g) => {
-    const opt = document.createElement("option");
-    opt.value = g;
-    opt.textContent = g;
-    desigSelect.appendChild(opt);
-  });
-}
-
+// =======================
+// STEP 1 VALIDATION
+// =======================
 function validateStep1() {
-  const empId         = $("empId").value.trim();
-  const employeeName  = $("employeeName").value.trim();
-  const employeeEmail = $("employeeEmail").value.trim();
-  const department    = $("department").value.trim();
-  const designation   = $("designation").value.trim();
-  const queryType     = $("queryType").value.trim();
+  const empId = $("empId").value.trim();
+  const name = $("employeeName").value.trim();
+  const location = $("jobLocation").value.trim();
+  const queryType = $("queryType").value.trim();
 
-  if (!empId || !employeeName || !employeeEmail || !department || !designation || !queryType) {
-    showAlert("Please fill in all fields before proceeding.", "danger");
-    return false;
-  }
-
-  // very simple email check
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(employeeEmail)) {
-    showAlert("Please enter a valid email address.", "danger");
+  if (!empId || !name || !location || !queryType) {
+    showAlert("Please fill all fields to continue.");
     return false;
   }
 
@@ -140,103 +99,92 @@ function validateStep1() {
   return true;
 }
 
-// === SUBMIT STEP ===
-async function submitForm() {
+// =======================
+// SUBMIT HANDLER (QUERY OR CALLBACK)
+// =======================
+function submitForm(mode) {
   const queryDetails = $("queryDetails").value.trim();
-  if (!queryDetails) {
-    showAlert("Please provide details about your query.", "danger");
+  const fileInput = $("fileInput");
+  const file = fileInput.files?.[0] || null;
+
+  if (!queryDetails && mode === "query") {
+    showAlert("Please enter your query details.");
     return;
   }
 
   hideAlert();
-  const btnSubmit = $("btnSubmit");
-  btnSubmit.disabled = true;
-  btnSubmit.textContent = "Submitting...";
 
-  // File (optional)
-  const fileInput = $("fileInput");
-  const file =
-    fileInput && fileInput.files && fileInput.files[0]
-      ? fileInput.files[0]
-      : null;
+  const payload = {
+    empId: $("empId").value.trim(),
+    employeeName: $("employeeName").value.trim(),
+    jobLocation: $("jobLocation").value.trim(),
+    queryType: $("queryType").value.trim(),
+    queryDetails: queryDetails,
+    submissionType: mode === "callback" ? "Request Callback" : "Submit Query",
+    filename: file ? file.name : "",
+    mimeType: file ? file.type : "",
+    bytes: ""
+  };
 
-  let bytes = null;
-  let filename = "";
-  let mimeType = "";
-
-  try {
-    if (file) {
-      const buffer = await file.arrayBuffer();
-      bytes = Array.from(new Int8Array(buffer));
-      filename = file.name;
-      mimeType = file.type || "application/octet-stream";
-
-      // simple size guard: 10 MB max
-      const maxSizeBytes = 10 * 1024 * 1024;
-      if (file.size > maxSizeBytes) {
-        throw new Error("File is larger than 10MB. Please upload a smaller file.");
-      }
-    }
-
-    const payload = {
-      empId: $("empId").value.trim(),
-      employeeName: $("employeeName").value.trim(),
-      department: $("department").value.trim(),
-      designation: $("designation").value.trim(),
-      queryType: $("queryType").value.trim(),
-      queryDetails: queryDetails,
-      employeeEmail:  $("employeeEmail").value.trim(),  // send from UI
-      filename,
-      mimeType,
-      bytes
+  // Read file if present
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(",")[1];
+      payload.bytes = base64;
+      sendToServer(payload);
     };
-
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      // IMPORTANT: no custom headers → browser uses text/plain, no CORS preflight
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    if (!data.ok) {
-      throw new Error(data.error || "Submission failed");
-    }
-
-    const ref =
-      data.refId || "QRMS-" + Date.now().toString().slice(-8);
-    $("refCode").textContent = ref;
-
-    setStep(3);
-  } catch (err) {
-    console.error(err);
-    showAlert(
-      err.message || "Error submitting query. Please try again.",
-      "danger"
-    );
-  } finally {
-    btnSubmit.disabled = false;
-    btnSubmit.textContent = "Submit";
+    reader.readAsDataURL(file);
+  } else {
+    sendToServer(payload);
   }
 }
 
-// === INIT ===
-function init() {
-  loadMeta();
+// =======================
+// SEND DATA USING HIDDEN FORM (BYPASSES CORS)
+// =======================
+function sendToServer(payload) {
+  const form = document.createElement("form");
+  form.style.display = "none";
+  form.method = "POST";
+  form.action = APPS_SCRIPT_URL;
+  form.target = "hidden_iframe";
 
-  $("department").addEventListener("change", onDepartmentChange);
+  Object.entries(payload).forEach(([k, v]) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = k;
+    input.value = v;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+
+  form.submit();
+
+  // Artificial short delay for UX
+  setTimeout(() => {
+    $("refCode").textContent = "QRMS-" + Date.now().toString().slice(-8);
+    setStep(3);
+    document.body.removeChild(form);
+  }, 400);
+}
+
+// =======================
+// INITIALIZE
+// =======================
+document.addEventListener("DOMContentLoaded", () => {
+  loadMeta();
 
   $("btnNext1").addEventListener("click", () => {
     if (!validateStep1()) return;
-    const qt = $("queryType").value.trim() || "–";
-    $("queryTypeTag").textContent = "Query Type: " + qt;
+    $("queryTypeTag").textContent = "Query Type: " + $("queryType").value.trim();
     setStep(2);
   });
 
-  $("btnBack2").addEventListener("click", () => {
-    setStep(1);
-  });
+  $("btnBack2").addEventListener("click", () => setStep(1));
 
-  $("btnSubmit").addEventListener("click", submitForm);
-}
+  $("btnSubmitQuery").addEventListener("click", () => submitForm("query"));
 
-document.addEventListener("DOMContentLoaded", init);
+  $("btnCallback").addEventListener("click", () => submitForm("callback"));
+});
