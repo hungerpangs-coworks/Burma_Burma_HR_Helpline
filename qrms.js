@@ -2,7 +2,7 @@
 // CONFIG
 // =======================
 const APPS_SCRIPT_URL =
-  "YOUR_WEB_APP_URL_HERE"; 
+  "https://script.google.com/macros/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec"; 
 // Example: https://script.google.com/macros/s/AKfycbxxxxx/exec
 
 let currentStep = 1;
