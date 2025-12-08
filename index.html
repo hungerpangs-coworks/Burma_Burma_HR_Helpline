@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="256x256">
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="128x128">
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="32x32">
+  <!-- Apple / iPhone -->
   <link rel="apple-touch-icon" href="BB_Logo_favicon.png">
 
   <!-- Bootstrap 5 CSS -->
@@ -145,7 +146,7 @@
       color: #ffffff;
       font-weight: 600;
       border-radius: 999px;
-      padding: 0.7rem 1.2rem;
+      padding: 0.7rem 1.5rem;
       box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3);
     }
 
@@ -204,6 +205,17 @@
       font-weight: 600;
       color: #111827;
     }
+
+    .gap-2 > * + * {
+      margin-left: 0.5rem;
+    }
+
+    @media (max-width: 576px) {
+      .gap-2 > * + * {
+        margin-left: 0;
+        margin-top: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -213,7 +225,9 @@
         <div class="text-center mb-4">
           <img src="BB_Logo_Cropped.png" alt="Burma Burma Logo" class="bb-logo mb-2" />
           <div class="page-title">My HR Support</div>
-          <div class="page-subtitle">Your confidential gateway for HR assistance, requests, and guidance.</div>
+          <div class="page-subtitle">
+            Your confidential gateway for HR assistance, requests, and guidance.
+          </div>
         </div>
 
         <div class="card card-helpline">
@@ -256,7 +270,7 @@
                 <div class="col-md-6">
                   <label for="jobLocation" class="form-label">Job Location</label>
                   <select id="jobLocation" class="form-select">
-                    <option value="">Loading job locations...</option>
+                    <option value="">Loading locations...</option>
                   </select>
                 </div>
 
@@ -291,6 +305,27 @@
                 ></textarea>
               </div>
 
+              <!-- Multiple Date Selection -->
+              <div class="mb-3">
+                <label class="form-label">Relevant Dates (optional)</label>
+                <div class="d-flex flex-wrap align-items-center">
+                  <input
+                    type="date"
+                    id="datePicker"
+                    class="form-control"
+                    style="max-width: 220px;"
+                  />
+                  <button type="button" class="btn btn-outline-primary btn-sm ms-2 mt-2 mt-sm-0" id="btnAddDate">
+                    Add Date
+                  </button>
+                </div>
+                <small class="text-muted">
+                  Add one or more dates related to your query (e.g., incident dates, days affected, etc.).
+                </small>
+                <div id="selectedDatesContainer" class="mt-2"></div>
+                <input type="hidden" id="selectedDates" />
+              </div>
+
               <div class="mb-3">
                 <label for="fileInput" class="form-label">Attach Document (optional)</label>
                 <input class="form-control" type="file" id="fileInput" />
@@ -299,16 +334,15 @@
                 </small>
               </div>
 
-              <div class="d-flex flex-wrap justify-content-between gap-2 mt-4">
+              <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
                 <button class="btn btn-outline-secondary" id="btnBack2">
                   ← Back
                 </button>
-
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-secondary" id="btnCallback">
-                    Request a Callback
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn btn-outline-secondary" id="btnCallback">
+                    Request Callback
                   </button>
-                  <button class="btn btn-gradient px-5" id="btnSubmitQuery">
+                  <button type="button" class="btn btn-gradient px-5" id="btnSubmitQuery">
                     Submit Query
                   </button>
                 </div>
@@ -344,6 +378,9 @@
     </div>
   </div>
 
+  <!-- Hidden iframe for Apps Script POST (CORS-safe) -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+
   <!-- Bootstrap JS -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -351,7 +388,7 @@
     crossorigin="anonymous"
   ></script>
 
-  <!-- Our app logic -->
+  <!-- App logic -->
   <script src="qrms.js"></script>
 </body>
 </html>
