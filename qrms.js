@@ -2,7 +2,6 @@
 const APPS_SCRIPT_URL =
   "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
 
-let currentStep = 1;
 let selectedDatesArr = [];
 
 const $ = (id) => document.getElementById(id);
@@ -19,29 +18,48 @@ function hideAlert() {
   $("alert-container").style.display = "none";
 }
 
-function setStep(step) {
-  currentStep = step;
-  for (let i = 1; i <= 3; i++) {
-    const pane = $("step-" + i);
-    pane.classList.toggle("d-none", i !== step);
-  }
+// =============== DATE RANGE HELPERS ===============
 
-  document.querySelectorAll(".stepper-item").forEach((el) => {
-    const s = parseInt(el.getAttribute("data-step"), 10);
-    el.classList.remove("active", "completed");
-    if (s === step) el.classList.add("active");
-    if (s < step) el.classList.add("completed");
-  });
-
-  document.querySelectorAll(".step-line").forEach((line, idx) => {
-    const s = idx + 1;
-    line.classList.toggle("completed", s < step);
-  });
-
-  hideAlert();
+// Convert Date → "YYYY-MM-DD"
+function toIsoDate(d) {
+  return d.toISOString().slice(0, 10);
 }
 
-// --- Load job locations from Apps Script meta ---
+// Format "YYYY-MM-DD" → "dd MMM yyyy"
+function formatDateLabel(iso) {
+  if (!iso) return "";
+  const s = iso.substring(0, 10);
+  const [y, m, d] = s.split("-");
+  const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
+  return dateObj.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }); // e.g. 01 Nov 2025
+}
+
+// Set min/max on datePicker to: 1st of previous month → yesterday
+function setDateConstraints() {
+  const picker = $("datePicker");
+  if (!picker) return;
+
+  const today = new Date();
+
+  // max = yesterday
+  const max = new Date(today);
+  max.setDate(max.getDate() - 1);
+
+  // min = 1st of previous month
+  const min = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+  picker.min = toIsoDate(min);
+  picker.max = toIsoDate(max);
+
+  // (Optional) you could update a helper text here if you want to show the range
+  // e.g. "You can select dates from 01 Nov 2025 to 08 Dec 2025"
+}
+
+// =============== LOAD JOB LOCATIONS ===============
 async function loadJobLocations() {
   const jobSel = $("jobLocation");
 
@@ -55,7 +73,7 @@ async function loadJobLocations() {
       throw new Error(json.error || "Failed to load metadata");
     }
 
-    const locations = json.jobLocations || json.departments || [];
+    const locations = json.jobLocations || json.locations || [];
     jobSel.innerHTML = '<option value="">Select Job Location</option>';
     locations.forEach((loc) => {
       const opt = document.createElement("option");
@@ -73,34 +91,21 @@ async function loadJobLocations() {
   }
 }
 
-// --- Query type / sub-query type behaviour ---
+// =============== QUERY TYPE / SUB QUERY TYPE ===============
 function onQueryTypeChange() {
   const queryType = $("queryType").value;
   const subSel = $("subQueryType");
 
   if (queryType === "Salary") {
     subSel.disabled = false;
-    if (!subSel.value) {
-      subSel.value = "";
-    }
+    if (!subSel.value) subSel.value = "";
   } else {
-    // For Service Charge or empty → disable & clear
     subSel.disabled = true;
     subSel.value = "";
-    subSel.innerHTML = `
-      <option value="">
-        ${queryType ? "Not applicable for this query type" : "Select Query Type first"}
-      </option>
-      <option value="Leave related">Leave related</option>
-      <option value="Weekly off related">Weekly off related</option>
-      <option value="Attendance related">Attendance related</option>
-      <option value="Swipe related">Swipe related</option>
-    `;
-    // keep the options so that when Salary is chosen we just enable
   }
 }
 
-function validateStep1() {
+function validateMainFields() {
   const empId = $("empId").value.trim();
   const employeeName = $("employeeName").value.trim();
   const jobLocation = $("jobLocation").value.trim();
@@ -108,12 +113,12 @@ function validateStep1() {
   const subQueryType = $("subQueryType").value.trim();
 
   if (!empId || !employeeName || !jobLocation || !queryType) {
-    showAlert("Please fill in all mandatory fields before proceeding.");
+    showAlert("Please fill in all mandatory fields.", "danger");
     return false;
   }
 
   if (queryType === "Salary" && !subQueryType) {
-    showAlert("Please select a Sub Query Type for Salary queries.");
+    showAlert("Please select a Sub Query Type for Salary queries.", "danger");
     return false;
   }
 
@@ -121,21 +126,21 @@ function validateStep1() {
   return true;
 }
 
-// --- Dates handling ---
+// =============== DATES: ADD / RENDER / VALIDATE ===============
 function renderSelectedDates() {
   const container = $("selectedDatesContainer");
   container.innerHTML = "";
 
-  selectedDatesArr.forEach((d) => {
+  selectedDatesArr.forEach((iso) => {
     const chip = document.createElement("span");
     chip.className = "chip";
-    chip.textContent = d;
+    chip.textContent = formatDateLabel(iso); // show dd MMM yyyy
 
     const btn = document.createElement("button");
     btn.type = "button";
     btn.textContent = "×";
     btn.onclick = () => {
-      selectedDatesArr = selectedDatesArr.filter((x) => x !== d);
+      selectedDatesArr = selectedDatesArr.filter((x) => x !== iso);
       renderSelectedDates();
     };
 
@@ -143,15 +148,39 @@ function renderSelectedDates() {
     container.appendChild(chip);
   });
 
+  // keep underlying value as ISO dates, CSV
   $("selectedDates").value = selectedDatesArr.join(", ");
 }
 
 function addDate() {
-  const value = $("datePicker").value;
+  const picker = $("datePicker");
+  const value = picker.value;
+
   if (!value) {
     showAlert("Please select a date before adding.", "danger");
     return;
   }
+
+  // Extra safety: enforce range in JS also
+  if (picker.min && value < picker.min) {
+    showAlert(
+      `You can only select dates from ${formatDateLabel(
+        picker.min
+      )} to ${formatDateLabel(picker.max)}.`,
+      "danger"
+    );
+    return;
+  }
+  if (picker.max && value > picker.max) {
+    showAlert(
+      `You can only select dates from ${formatDateLabel(
+        picker.min
+      )} to ${formatDateLabel(picker.max)}.`,
+      "danger"
+    );
+    return;
+  }
+
   if (!selectedDatesArr.includes(value)) {
     selectedDatesArr.push(value);
     selectedDatesArr.sort();
@@ -168,7 +197,20 @@ function validateDates() {
   return true;
 }
 
-// --- Submission helper via hidden form/iframe (no CORS issues) ---
+// =============== REFERENCE ID GENERATOR ===============
+function generateRefId() {
+  const d = new Date();
+  const yy = String(d.getFullYear()).slice(-2);
+  const MM = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+  const rand = Math.floor(Math.random() * 900) + 100; // 100–999
+  return `QRMS-${yy}${MM}${dd}${hh}${mm}${ss}${rand}`;
+}
+
+// =============== SUBMISSION TO APPS SCRIPT ===============
 function submitToAppsScript(payload) {
   const form = document.createElement("form");
   form.method = "POST";
@@ -188,8 +230,9 @@ function submitToAppsScript(payload) {
   document.body.removeChild(form);
 }
 
-// main submit (mode = "callback" | "query")
+// mode = "callback" | "query"
 function submitForm(mode, callbackPhone) {
+  if (!validateMainFields()) return;
   if (!validateDates()) return;
 
   const empId = $("empId").value.trim();
@@ -199,9 +242,10 @@ function submitForm(mode, callbackPhone) {
   const subQueryType =
     queryType === "Salary" ? $("subQueryType").value.trim() : "";
 
-  const ref = "QRMS-" + Date.now().toString().slice(-8);
+  const refId = generateRefId();
 
   const payload = {
+    refId,
     empId,
     employeeName,
     jobLocation,
@@ -210,16 +254,18 @@ function submitForm(mode, callbackPhone) {
     relevantDates: selectedDatesArr.join(", "),
     submissionType: mode === "callback" ? "Request Callback" : "Submit Query",
     callbackPhone: mode === "callback" ? callbackPhone : "",
-    // backend can still try to auto-capture email (Session.getActiveUser)
   };
 
   submitToAppsScript(payload);
 
-  $("refCode").textContent = ref;
-  setStep(3);
+  $("refCode").textContent = refId;
+  const successBox = document.getElementById("successBox");
+  if (successBox) successBox.style.display = "block";
+
+  showAlert("Your request has been submitted successfully.", "success");
 }
 
-// --- Callback modal logic ---
+// =============== CALLBACK MODAL ===============
 function openCallbackModal() {
   const modalEl = document.getElementById("callbackModal");
   const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -247,38 +293,22 @@ function confirmCallback() {
   submitForm("callback", phone);
 }
 
-// --- Event wiring ---
+// =============== INIT ===============
 document.addEventListener("DOMContentLoaded", () => {
   loadJobLocations();
+  setDateConstraints(); // 🔐 limit date range to last month window
 
   $("queryType").addEventListener("change", onQueryTypeChange);
-
-  $("btnNext1").addEventListener("click", () => {
-    if (!validateStep1()) return;
-
-    const q = $("queryType").value.trim() || "–";
-    const sq = $("subQueryType").value.trim();
-    $("queryTypeTag").textContent =
-      "Query Type: " + q + (sq ? " • " + sq : "");
-
-    setStep(2);
-  });
-
-  $("btnBack2").addEventListener("click", () => {
-    setStep(1);
-  });
-
   $("btnAddDate").addEventListener("click", addDate);
 
   $("btnCallback").addEventListener("click", () => {
-    if (!validateDates()) return;
+    if (!validateMainFields() || !validateDates()) return;
     openCallbackModal();
   });
 
   $("confirmCallbackBtn").addEventListener("click", confirmCallback);
 
   $("btnSubmitQuery").addEventListener("click", () => {
-    if (!validateDates()) return;
     submitForm("query", "");
   });
 });
