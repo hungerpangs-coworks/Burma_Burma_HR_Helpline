@@ -5,12 +5,11 @@
   <title>Burma Burma | HR Helpline</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Favicon: Burma Burma logo -->
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="512x512">
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="256x256">
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="128x128">
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="32x32">
-  <!-- Apple / iPhone -->
   <link rel="apple-touch-icon" href="BB_Logo_favicon.png">
 
   <!-- Bootstrap 5 CSS -->
@@ -206,14 +205,33 @@
       color: #111827;
     }
 
-    .gap-2 > * + * {
-      margin-left: 0.5rem;
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      margin: 0.15rem;
+      border-radius: 999px;
+      background-color: #e0f2fe;
+      font-size: 0.8rem;
+      color: #1d4ed8;
+    }
+
+    .chip button {
+      border: none;
+      background: transparent;
+      margin-left: 0.3rem;
+      font-size: 0.9rem;
+      line-height: 1;
+      cursor: pointer;
+      color: #1e3a8a;
     }
 
     @media (max-width: 576px) {
-      .gap-2 > * + * {
-        margin-left: 0;
-        margin-top: 0.5rem;
+      .btn-group-flex {
+        flex-direction: column;
+      }
+      .btn-group-flex > * {
+        width: 100%;
       }
     }
   </style>
@@ -241,7 +259,7 @@
               <div class="step-line" data-step-line="1"></div>
               <div class="stepper-item" data-step="2">
                 <div class="step-circle">2</div>
-                <div class="step-label">Query</div>
+                <div class="step-label">Dates</div>
               </div>
               <div class="step-line" data-step-line="2"></div>
               <div class="stepper-item" data-step="3">
@@ -255,7 +273,7 @@
               <div id="alert" class="alert alert-danger mb-0" role="alert"></div>
             </div>
 
-            <!-- STEP 1 -->
+            <!-- STEP 1: basic details -->
             <div id="step-1" class="step-pane">
               <div class="row g-3">
                 <div class="col-md-6">
@@ -280,7 +298,17 @@
                     <option value="">Select Query Type</option>
                     <option value="Salary">Salary</option>
                     <option value="Service Charge">Service Charge</option>
-                    <option value="Other">Others</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="subQueryType" class="form-label">Sub Query Type</label>
+                  <select id="subQueryType" class="form-select" disabled>
+                    <option value="">Select Query Type first</option>
+                    <option value="Leave related">Leave related</option>
+                    <option value="Weekly off related">Weekly off related</option>
+                    <option value="Attendance related">Attendance related</option>
+                    <option value="Swipe related">Swipe related</option>
                   </select>
                 </div>
               </div>
@@ -292,22 +320,15 @@
               </div>
             </div>
 
-            <!-- STEP 2 -->
+            <!-- STEP 2: dates + actions -->
             <div id="step-2" class="step-pane d-none">
-              <div class="query-type-tag mb-2" id="queryTypeTag">Query Type: –</div>
-
-              <div class="mb-3">
-                <label for="queryDetails" class="form-label">Query Details</label>
-                <textarea
-                  id="queryDetails"
-                  class="form-control"
-                  placeholder="Please describe your query in detail..."
-                ></textarea>
+              <div class="query-type-tag mb-2" id="queryTypeTag">
+                Query Type: –
               </div>
 
-              <!-- Multiple Date Selection -->
+              <!-- Mandatory multiple date selection -->
               <div class="mb-3">
-                <label class="form-label">Relevant Dates (optional)</label>
+                <label class="form-label">Relevant Date(s) <span class="text-danger">*</span></label>
                 <div class="d-flex flex-wrap align-items-center">
                   <input
                     type="date"
@@ -320,36 +341,28 @@
                   </button>
                 </div>
                 <small class="text-muted">
-                  Add one or more dates related to your query (e.g., incident dates, days affected, etc.).
+                  Add one or more dates related to your salary / service-charge query.
                 </small>
                 <div id="selectedDatesContainer" class="mt-2"></div>
                 <input type="hidden" id="selectedDates" />
               </div>
 
-              <div class="mb-3">
-                <label for="fileInput" class="form-label">Attach Document (optional)</label>
-                <input class="form-control" type="file" id="fileInput" />
-                <small class="text-muted">
-                  Accepted: PDF, DOC, TXT, JPG, PNG (Max 10 MB). File will be stored securely in HR Drive.
-                </small>
-              </div>
-
-              <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
+              <div class="d-flex justify-content-between mt-4 btn-group-flex">
                 <button class="btn btn-outline-secondary" id="btnBack2">
                   ← Back
                 </button>
                 <div class="d-flex gap-2 flex-wrap">
                   <button type="button" class="btn btn-outline-secondary" id="btnCallback">
-                    Request Callback
+                    Request a Callback
                   </button>
                   <button type="button" class="btn btn-gradient px-5" id="btnSubmitQuery">
-                    Submit Query
+                    Submit a Query
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- STEP 3 -->
+            <!-- STEP 3: thank you -->
             <div id="step-3" class="step-pane d-none text-center">
               <div class="success-icon">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -378,8 +391,49 @@
     </div>
   </div>
 
-  <!-- Hidden iframe for Apps Script POST (CORS-safe) -->
+  <!-- Hidden iframe for CORS-safe POST -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
+
+  <!-- Callback phone modal -->
+  <div class="modal fade" id="callbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Request a Callback</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label for="callbackPhone" class="form-label">Phone Number</label>
+          <input
+            type="tel"
+            id="callbackPhone"
+            class="form-control"
+            placeholder="10-digit mobile number"
+          />
+          <small class="text-muted">
+            HR will use this number to call you back.
+          </small>
+          <div
+            id="callbackPhoneError"
+            class="text-danger mt-2"
+            style="display:none;font-size:0.85rem;"
+          ></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="button" class="btn btn-gradient" id="confirmCallbackBtn">
+            Confirm Request
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Bootstrap JS -->
   <script
