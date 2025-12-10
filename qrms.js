@@ -1,47 +1,75 @@
-// ====== CONFIG: Apps Script Web App URL ======
+// === CONFIG: your Apps Script Web App URL ===
 const APPS_SCRIPT_URL =
   "https://script.google.com/a/macros/burmaburma.in/s/AKfycbyKyn2FIoz6sCzr5tscplB2ZNVZK8dpog_mw4yjnTsk9FTV1FpfJ1-oX0eyOaBRDh02Rw/exec";
 
-// Stored selected dates (ISO strings)
-let selectedDates = [];
-
-// Small helpers
 const $ = (id) => document.getElementById(id);
 
+let selectedDatesArr = [];
+let callbackModal;
+
+// ---- ALERT HELPERS ----
 function showAlert(msg, type = "danger") {
-  const container = $("alertContainer");
-  const text = $("alertText");
-  if (!container || !text) return;
-  container.className = `alert alert-${type}`;
-  text.textContent = msg;
-  container.classList.remove("d-none");
+  const container = $("alert-container");
+  const alert = $("alert");
+  alert.className = "alert alert-" + type + " mb-0";
+  alert.textContent = msg;
+  container.style.display = "block";
 }
 
 function hideAlert() {
-  const container = $("alertContainer");
-  if (!container) return;
-  container.classList.add("d-none");
+  $("alert-container").style.display = "none";
 }
 
-// ========== JOB LOCATIONS ==========
+// ---- DATE HELPERS ----
+function toInputDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
 
+function toDisplayDate(d) {
+  const day = String(d.getDate()).padStart(2, "0");
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const mon = monthNames[d.getMonth()];
+  const y = d.getFullYear();
+  return `${day} ${mon} ${y}`;
+}
+
+function initDateRange() {
+  const dp = $("datePicker");
+  const today = new Date();
+
+  // max = yesterday
+  const max = new Date(today);
+  max.setDate(today.getDate() - 1);
+
+  // min = first day of previous month
+  const min = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+  dp.min = toInputDate(min);
+  dp.max = toInputDate(max);
+  dp.value = "";
+
+  $("dateRangeHint").textContent =
+    `You can select dates from ${toDisplayDate(min)} to ${toDisplayDate(max)}.`;
+}
+
+// ---- JOB LOCATION META LOAD ----
 async function loadJobLocations() {
   const select = $("jobLocation");
-  if (!select) return;
-
-  select.innerHTML = `<option value="">Loading job locations...</option>`;
+  select.innerHTML = '<option value="">Loading locations...</option>';
 
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=meta`);
+    const res = await fetch(APPS_SCRIPT_URL + "?action=meta");
     const json = await res.json();
-    if (!json.ok) throw new Error(json.error || "Failed to load metadata");
 
-    const locations = json.jobLocations || [];
-    if (!locations.length) {
-      throw new Error("No job locations found in sheet");
+    if (!json.ok) {
+      throw new Error(json.error || "Failed to load locations");
     }
 
-    select.innerHTML = `<option value="">Select Job Location</option>`;
+    const locations = json.jobLocations || [];
+    select.innerHTML = '<option value="">Select Job Location</option>';
     locations.forEach((loc) => {
       const opt = document.createElement("option");
       opt.value = loc;
@@ -50,277 +78,199 @@ async function loadJobLocations() {
     });
   } catch (err) {
     console.error(err);
-    select.innerHTML = `<option value="">Error loading locations</option>`;
-    showAlert("Unable to load Job Locations. Please refresh the page.", "danger");
+    select.innerHTML = '<option value="">Error loading locations</option>';
+    showAlert("Unable to load Job Locations. Please refresh the page.");
   }
 }
 
-// ========== QUERY TYPE & SUB QUERY TYPE ==========
-
-function setupQueryTypeLogic() {
-  const queryTypeSelect = $("queryType");
-  const subQuerySelect = $("subQueryType");
-
-  if (!queryTypeSelect || !subQuerySelect) return;
-
-  function updateSubQueryState() {
-    const qt = queryTypeSelect.value;
-    if (qt === "Salary") {
-      subQuerySelect.disabled = false;
-    } else {
-      subQuerySelect.disabled = true;
-      subQuerySelect.value = "";
-    }
+// ---- SUB QUERY ENABLE/DISABLE ----
+function handleQueryTypeChange() {
+  const qType = $("queryType").value;
+  const sub = $("subQueryType");
+  if (qType === "Salary") {
+    sub.disabled = false;
+  } else {
+    sub.disabled = true;
+    sub.value = "";
   }
-
-  queryTypeSelect.addEventListener("change", updateSubQueryState);
-  updateSubQueryState(); // initial
 }
 
-// ========== DATE LOGIC ==========
-
-function formatForInput(d) {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function formatForDisplay(d) {
-  const dd = String(d.getDate()).padStart(2, "0");
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const mmm = monthNames[d.getMonth()];
-  const yyyy = d.getFullYear();
-  return `${dd} ${mmm} ${yyyy}`;
-}
-
-/**
- * Limit date selection:
- *  If today = 9 Dec, allowed range = 1 Nov to 8 Dec (yesterday).
- */
-function setupDateLimits() {
-  const input = $("dateInput");
-  if (!input) return;
-
-  const today = new Date();
-  const max = new Date(today);
-  max.setDate(max.getDate() - 1); // yesterday
-
-  const firstPrevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-
-  input.min = formatForInput(firstPrevMonth);
-  input.max = formatForInput(max);
-}
-
-function renderSelectedDates() {
-  const container = $("selectedDates");
-  if (!container) return;
-
+// ---- DATES: ADD/REMOVE ----
+function renderDateChips() {
+  const container = $("selectedDatesContainer");
   container.innerHTML = "";
-  if (!selectedDates.length) {
-    container.textContent = "No dates selected yet.";
+  selectedDatesArr.forEach((dateStr) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.textContent = dateStr;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "×";
+    btn.onclick = () => {
+      selectedDatesArr = selectedDatesArr.filter((d) => d !== dateStr);
+      $("selectedDates").value = selectedDatesArr.join(", ");
+      renderDateChips();
+    };
+
+    chip.appendChild(btn);
+    container.appendChild(chip);
+  });
+}
+
+function addSelectedDate() {
+  hideAlert();
+  const dp = $("datePicker");
+  if (!dp.value) {
+    showAlert("Please select a date first.");
     return;
   }
 
-  selectedDates
-    .map((iso) => new Date(iso))
-    .sort((a, b) => a - b)
-    .forEach((d) => {
-      const span = document.createElement("span");
-      span.className = "badge rounded-pill bg-primary me-1 mb-1";
-      span.textContent = formatForDisplay(d);
-      container.appendChild(span);
-    });
+  const d = new Date(dp.value + "T00:00:00");
+  const display = toDisplayDate(d);
+
+  if (!selectedDatesArr.includes(display)) {
+    selectedDatesArr.push(display);
+    $("selectedDates").value = selectedDatesArr.join(", ");
+    renderDateChips();
+  }
 }
 
-function setupDateSelection() {
-  const input = $("dateInput");
-  const btnAdd = $("btnAddDate");
-  if (!input || !btnAdd) return;
+// ---- VALIDATION ----
+function validateForm(requestType, phoneNumber) {
+  const empId = $("empId").value.trim();
+  const empName = $("employeeName").value.trim();
+  const jobLoc = $("jobLocation").value;
+  const qType = $("queryType").value;
+  const subQ = $("subQueryType").value;
 
-  setupDateLimits();
-  renderSelectedDates();
+  if (!empId || !empName || !jobLoc || !qType) {
+    return "Please fill all mandatory fields (Employee ID, Employee Name, Job Location, Query Type).";
+  }
 
-  btnAdd.addEventListener("click", () => {
-    const value = input.value;
-    if (!value) {
-      showAlert("Please choose a date before adding.", "danger");
-      return;
+  if (qType === "Salary" && !subQ) {
+    return "Please select a Sub Query Type for Salary.";
+  }
+
+  if (selectedDatesArr.length === 0) {
+    return "Please add at least one relevant date.";
+  }
+
+  if (requestType === "Callback") {
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phoneNumber || "")) {
+      return "Please enter a valid 10-digit phone number.";
     }
+  }
 
-    // avoid duplicates
-    if (!selectedDates.includes(value)) {
-      selectedDates.push(value);
-      renderSelectedDates();
-    }
-
-    input.value = "";
-  });
+  return null;
 }
 
-// ========== VALIDATION ==========
-
-function validateCommonFields() {
-  const empId        = $("empId")?.value.trim() || "";
-  const employeeName = $("employeeName")?.value.trim() || "";
-  const jobLocation  = $("jobLocation")?.value.trim() || "";
-  const queryType    = $("queryType")?.value.trim() || "";
-  const subQueryType = $("subQueryType")?.value.trim() || "";
-
-  if (!empId || !employeeName || !jobLocation || !queryType) {
-    showAlert("Please fill in Employee ID, Name, Job Location and Query Type.", "danger");
-    return null;
-  }
-
-  if (queryType === "Salary" && !subQueryType) {
-    showAlert("Please select a Sub Query Type for Salary queries.", "danger");
-    return null;
-  }
-
-  if (!selectedDates.length) {
-    showAlert("Please add at least one relevant date.", "danger");
-    return null;
+// ---- SUBMISSION ----
+async function submitToBackend(requestType, phoneNumber) {
+  const errorMsg = validateForm(requestType, phoneNumber);
+  if (errorMsg) {
+    showAlert(errorMsg);
+    return;
   }
 
   hideAlert();
-
-  return {
-    empId,
-    employeeName,
-    jobLocation,
-    queryType,
-    subQueryType: queryType === "Salary" ? subQueryType : ""
-  };
-}
-
-// ========== SUBMISSION ==========
-
-async function submitForm(submissionType, callbackPhone) {
-  const common = validateCommonFields();
-  if (!common) return;
-
-  if (submissionType === "Request Callback") {
-    const phone = (callbackPhone || "").trim();
-    if (!/^\d{10}$/.test(phone)) {
-      showAlert("Please enter a valid 10-digit phone number for callback.", "danger");
-      return;
-    }
-  }
-
-  const employeeEmail = $("employeeEmail")?.value.trim() || "";
-
-  // Build dates text in dd mmm yyyy
-  const dateText = selectedDates
-    .map((iso) => formatForDisplay(new Date(iso)))
-    .sort()
-    .join(", ");
 
   const payload = {
-    empId: common.empId,
-    employeeName: common.employeeName,
-    employeeEmail: employeeEmail,
-    jobLocation: common.jobLocation,
-    queryType: common.queryType,
-    subQueryType: common.subQueryType,
-    relevantDates: dateText,
-    submissionType: submissionType,
-    callbackPhone: submissionType === "Request Callback" ? (callbackPhone || "").trim() : ""
+    empId: $("empId").value.trim(),
+    employeeName: $("employeeName").value.trim(),
+    jobLocation: $("jobLocation").value,
+    queryType: $("queryType").value,
+    subQueryType: $("subQueryType").disabled ? "" : $("subQueryType").value,
+    selectedDates: selectedDatesArr.join(", "),
+    requestType: requestType,
+    callbackPhone: requestType === "Callback" ? phoneNumber : ""
   };
 
-  const btnSubmit = $("btnSubmitQuery");
-  const btnReqCb  = $("btnRequestCallback");
-  if (btnSubmit) btnSubmit.disabled = true;
-  if (btnReqCb)  btnReqCb.disabled  = true;
+  const disableButtons = (state) => {
+    $("btnSubmitQuery").disabled = state;
+    $("btnCallback").disabled = state;
+    const cbBtn = $("confirmCallbackBtn");
+    if (cbBtn) cbBtn.disabled = state;
+  };
+
+  disableButtons(true);
 
   try {
-    const body = new URLSearchParams();
-    Object.entries(payload).forEach(([k, v]) => body.append(k, v));
-
     const res = await fetch(APPS_SCRIPT_URL, {
       method: "POST",
-      body
+      body: JSON.stringify(payload) // no custom headers → avoids CORS preflight
     });
 
-    const data = await res.json();
-    if (!data.ok) {
-      throw new Error(data.error || "Submission failed");
+    const json = await res.json();
+    if (!json.ok) {
+      throw new Error(json.error || "Submission failed");
     }
 
-    const ref = data.refId || "HR-UNKNOWN";
-    showThankYou(ref);
+    const ref = json.refId || "HR-XXXX";
+    $("refCode").textContent = ref;
+
+    // show thank-you, hide form
+    $("formSection").style.display = "none";
+    $("thankYouSection").style.display = "block";
+
+    if (callbackModal && requestType === "Callback") {
+      callbackModal.hide();
+    }
   } catch (err) {
     console.error(err);
-    showAlert(err.message || "Error submitting your request. Please try again.", "danger");
+    showAlert(err.message || "Error submitting request. Please try again.");
   } finally {
-    if (btnSubmit) btnSubmit.disabled = false;
-    if (btnReqCb)  btnReqCb.disabled  = false;
+    disableButtons(false);
   }
 }
 
-// ========== THANK-YOU VIEW ==========
-
-function showThankYou(refId) {
-  hideAlert();
-
-  const formSection    = $("formSection");
-  const thankSection   = $("thankYouSection");
-  const thankRefSpan   = $("thankRef");
-
-  if (thankRefSpan) {
-    thankRefSpan.textContent = refId;
-  }
-
-  if (formSection)    formSection.classList.add("d-none");
-  if (thankSection)   thankSection.classList.remove("d-none");
-}
-
-// ========== CALLBACK PANEL ==========
-
-function setupCallbackPanel() {
-  const panel          = $("callbackPanel");
-  const btnRequest     = $("btnRequestCallback");
-  const btnSubmitQuery = $("btnSubmitQuery");
-  const btnConfirm     = $("btnConfirmCallback");
-  const btnCancel      = $("btnCancelCallback");
-  const phoneInput     = $("callbackPhone");
-
-  if (!btnRequest || !btnSubmitQuery || !panel) return;
-
-  // Show panel when clicking "Request a Callback"
-  btnRequest.addEventListener("click", () => {
-    hideAlert();
-    panel.classList.remove("d-none");
-    phoneInput && phoneInput.focus();
-  });
-
-  // Hide panel on cancel
-  if (btnCancel) {
-    btnCancel.addEventListener("click", () => {
-      panel.classList.add("d-none");
-      if (phoneInput) phoneInput.value = "";
-    });
-  }
-
-  // Confirm callback submission
-  if (btnConfirm) {
-    btnConfirm.addEventListener("click", () => {
-      const phone = phoneInput ? phoneInput.value : "";
-      submitForm("Request Callback", phone);
-    });
-  }
-
-  // Direct submit (no callback)
-  btnSubmitQuery.addEventListener("click", () => {
-    panel.classList.add("d-none");
-    submitForm("Submit Query", "");
-  });
-}
-
-// ========== INIT ==========
-
+// ---- DOM READY ----
 document.addEventListener("DOMContentLoaded", () => {
+  callbackModal = new bootstrap.Modal(document.getElementById("callbackModal"));
+
+  initDateRange();
   loadJobLocations();
-  setupQueryTypeLogic();
-  setupDateSelection();
-  setupCallbackPanel();
+
+  $("queryType").addEventListener("change", handleQueryTypeChange);
+  $("btnAddDate").addEventListener("click", addSelectedDate);
+
+  $("btnSubmitQuery").addEventListener("click", () => {
+    submitToBackend("Query", "");
+  });
+
+  $("btnCallback").addEventListener("click", () => {
+    $("callbackPhone").value = "";
+    $("callbackPhoneError").style.display = "none";
+    callbackModal.show();
+  });
+
+  $("confirmCallbackBtn").addEventListener("click", () => {
+    const phone = $("callbackPhone").value.trim();
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      const errDiv = $("callbackPhoneError");
+      errDiv.textContent = "Please enter a valid 10-digit phone number.";
+      errDiv.style.display = "block";
+      return;
+    }
+    $("callbackPhoneError").style.display = "none";
+    submitToBackend("Callback", phone);
+  });
+
+  $("btnNewRequest").addEventListener("click", () => {
+    // quick reset for a new request
+    $("formSection").style.display = "block";
+    $("thankYouSection").style.display = "none";
+    $("empId").value = "";
+    $("employeeName").value = "";
+    $("jobLocation").value = "";
+    $("queryType").value = "";
+    handleQueryTypeChange();
+    selectedDatesArr = [];
+    $("selectedDates").value = "";
+    renderDateChips();
+    $("datePicker").value = "";
+    hideAlert();
+  });
 });
