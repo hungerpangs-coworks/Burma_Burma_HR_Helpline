@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burma Burma | HR Helpline</title>
+  <title>Burma Burma | My HR Support</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Favicon -->
@@ -16,7 +16,7 @@
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyt2bRjXh0JMhjY6hW+ALEwIH"
     crossorigin="anonymous"
   />
 
@@ -49,68 +49,6 @@
       box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
     }
 
-    .stepper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .stepper-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.2rem;
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
-    .step-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 0.9rem;
-      background-color: #f9fafb;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 4px 10px rgba(148, 163, 184, 0.4);
-      color: #60a5fa;
-    }
-
-    .stepper-item.active .step-circle {
-      background: #1d9bf0;
-      border-color: #1d9bf0;
-      color: #ffffff;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
-    }
-
-    .stepper-item.completed .step-circle {
-      background: #e0f2fe;
-      border-color: #bfdbfe;
-      color: #1d4ed8;
-      box-shadow: none;
-    }
-
-    .stepper-item.active .step-label {
-      color: #111827;
-      font-weight: 600;
-    }
-
-    .step-line {
-      width: 60px;
-      height: 2px;
-      border-radius: 999px;
-      background-color: #e5e7eb;
-    }
-
-    .step-line.completed {
-      background-color: #1d9bf0;
-    }
-
     .form-label {
       font-size: 0.9rem;
       font-weight: 500;
@@ -134,11 +72,6 @@
       background-color: #ffffff;
     }
 
-    textarea.form-control {
-      min-height: 130px;
-      resize: vertical;
-    }
-
     .btn-gradient {
       background: linear-gradient(to right, #1d9bf0, #34d399);
       border: none;
@@ -157,52 +90,6 @@
     .btn-outline-secondary {
       border-radius: 999px;
       font-weight: 500;
-    }
-
-    .query-type-tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.3rem 0.7rem;
-      border-radius: 999px;
-      background-color: #e0f2fe;
-      border: 1px solid #bfdbfe;
-      font-size: 0.75rem;
-      color: #1d4ed8;
-      margin-bottom: 0.5rem;
-    }
-
-    .success-icon {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #4ade80 0, #22c55e 45%, #16a34a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 18px 40px rgba(34, 197, 94, 0.4);
-      margin: 0 auto 1rem;
-    }
-
-    .success-icon svg {
-      width: 40px;
-      height: 40px;
-      stroke: #ffffff;
-      stroke-width: 2;
-    }
-
-    .ref-box {
-      border-radius: 0.75rem;
-      border: 1px solid #e5e7eb;
-      background-color: #f9fafb;
-      padding: 0.7rem 0.9rem;
-      font-size: 0.85rem;
-      color: #6b7280;
-    }
-
-    .ref-code {
-      font-family: "SF Mono", Menlo, Consolas, monospace;
-      font-weight: 600;
-      color: #111827;
     }
 
     .chip {
@@ -226,6 +113,12 @@
       color: #1e3a8a;
     }
 
+    .ref-code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-weight: 600;
+      color: #111827;
+    }
+
     @media (max-width: 576px) {
       .btn-group-flex {
         flex-direction: column;
@@ -240,6 +133,7 @@
   <div class="container py-4 py-md-5">
     <div class="row justify-content-center">
       <div class="col-lg-9">
+        <!-- Header -->
         <div class="text-center mb-4">
           <img src="BB_Logo_Cropped.png" alt="Burma Burma Logo" class="bb-logo mb-2" />
           <div class="page-title">My HR Support</div>
@@ -248,142 +142,106 @@
           </div>
         </div>
 
+        <!-- Card -->
         <div class="card card-helpline">
           <div class="card-body p-4 p-md-5">
-            <!-- Stepper -->
-            <div class="stepper mb-4" id="stepper">
-              <div class="stepper-item active" data-step="1">
-                <div class="step-circle">1</div>
-                <div class="step-label">Details</div>
-              </div>
-              <div class="step-line" data-step-line="1"></div>
-              <div class="stepper-item" data-step="2">
-                <div class="step-circle">2</div>
-                <div class="step-label">Dates</div>
-              </div>
-              <div class="step-line" data-step-line="2"></div>
-              <div class="stepper-item" data-step="3">
-                <div class="step-circle">3</div>
-                <div class="step-label">Done</div>
-              </div>
-            </div>
-
             <!-- Alerts -->
             <div id="alert-container" class="mb-3" style="display:none;">
               <div id="alert" class="alert alert-danger mb-0" role="alert"></div>
             </div>
 
-            <!-- STEP 1: basic details -->
-            <div id="step-1" class="step-pane">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="empId" class="form-label">Employee ID</label>
-                  <input type="text" id="empId" class="form-control" placeholder="Enter your employee ID" />
-                </div>
-                <div class="col-md-6">
-                  <label for="employeeName" class="form-label">Employee Name</label>
-                  <input type="text" id="employeeName" class="form-control" placeholder="Enter your full name" />
-                </div>
-
-                <div class="col-md-6">
-                  <label for="jobLocation" class="form-label">Job Location</label>
-                  <select id="jobLocation" class="form-select">
-                    <option value="">Loading locations...</option>
-                  </select>
-                </div>
-
-                <div class="col-md-6">
-                  <label for="queryType" class="form-label">Query Type</label>
-                  <select id="queryType" class="form-select">
-                    <option value="">Select Query Type</option>
-                    <option value="Salary">Salary</option>
-                    <option value="Service Charge">Service Charge</option>
-                  </select>
-                </div>
-
-                <div class="col-md-6">
-                  <label for="subQueryType" class="form-label">Sub Query Type</label>
-                  <select id="subQueryType" class="form-select" disabled>
-                    <option value="">Select Query Type first</option>
-                    <option value="Leave related">Leave related</option>
-                    <option value="Weekly off related">Weekly off related</option>
-                    <option value="Attendance related">Attendance related</option>
-                    <option value="Swipe related">Swipe related</option>
-                  </select>
-                </div>
+            <!-- MAIN FORM (single page) -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label for="empId" class="form-label">Employee ID</label>
+                <input
+                  type="text"
+                  id="empId"
+                  class="form-control"
+                  placeholder="Enter your employee ID"
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="employeeName" class="form-label">Employee Name</label>
+                <input
+                  type="text"
+                  id="employeeName"
+                  class="form-control"
+                  placeholder="Enter your full name"
+                />
               </div>
 
-              <div class="d-flex justify-content-end mt-4">
-                <button class="btn btn-gradient px-5" id="btnNext1">
-                  Next →
-                </button>
-              </div>
-            </div>
-
-            <!-- STEP 2: dates + actions -->
-            <div id="step-2" class="step-pane d-none">
-              <div class="query-type-tag mb-2" id="queryTypeTag">
-                Query Type: –
+              <div class="col-md-6">
+                <label for="jobLocation" class="form-label">Job Location</label>
+                <select id="jobLocation" class="form-select">
+                  <option value="">Loading locations...</option>
+                </select>
               </div>
 
-              <!-- Mandatory multiple date selection -->
-              <div class="mb-3">
-                <label class="form-label">Relevant Date(s) <span class="text-danger">*</span></label>
-                <div class="d-flex flex-wrap align-items-center">
-                  <input
-                    type="date"
-                    id="datePicker"
-                    class="form-control"
-                    style="max-width: 220px;"
-                  />
-                  <button type="button" class="btn btn-outline-primary btn-sm ms-2 mt-2 mt-sm-0" id="btnAddDate">
-                    Add Date
-                  </button>
-                </div>
-                <small class="text-muted">
-                  Add one or more dates related to your salary / service-charge query.
-                </small>
-                <div id="selectedDatesContainer" class="mt-2"></div>
-                <input type="hidden" id="selectedDates" />
+              <div class="col-md-6">
+                <label for="queryType" class="form-label">Query Type</label>
+                <select id="queryType" class="form-select">
+                  <option value="">Select Query Type</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Service Charge">Service Charge</option>
+                </select>
               </div>
 
-              <div class="d-flex justify-content-between mt-4 btn-group-flex">
-                <button class="btn btn-outline-secondary" id="btnBack2">
-                  ← Back
-                </button>
-                <div class="d-flex gap-2 flex-wrap">
-                  <button type="button" class="btn btn-outline-secondary" id="btnCallback">
-                    Request a Callback
-                  </button>
-                  <button type="button" class="btn btn-gradient px-5" id="btnSubmitQuery">
-                    Submit a Query
-                  </button>
-                </div>
+              <div class="col-md-6">
+                <label for="subQueryType" class="form-label">Sub Query Type</label>
+                <select id="subQueryType" class="form-select" disabled>
+                  <option value="">Select Query Type first</option>
+                  <option value="Leave related">Leave related</option>
+                  <option value="Weekly off related">Weekly off related</option>
+                  <option value="Attendance related">Attendance related</option>
+                  <option value="Swipe related">Swipe related</option>
+                </select>
               </div>
             </div>
 
-            <!-- STEP 3: thank you -->
-            <div id="step-3" class="step-pane d-none text-center">
-              <div class="success-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5"></circle>
-                  <path d="M7 13l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
+            <!-- Dates section (mandatory) -->
+            <div class="mb-3">
+              <label class="form-label">Relevant Date(s) <span class="text-danger">*</span></label>
+              <div class="d-flex flex-wrap align-items-center">
+                <input
+                  type="date"
+                  id="datePicker"
+                  class="form-control"
+                  style="max-width: 220px;"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm ms-2 mt-2 mt-sm-0"
+                  id="btnAddDate"
+                >
+                  Add Date
+                </button>
               </div>
+              <small class="text-muted" id="dateRangeHint">
+                Select one or more dates related to your query.
+              </small>
+              <div id="selectedDatesContainer" class="mt-2"></div>
+              <input type="hidden" id="selectedDates" />
+            </div>
 
-              <h4 class="mb-1">Thank you!</h4>
-              <p class="text-muted mb-3">
-                Your request has been submitted to HR. We will get back to you soon.
-              </p>
+            <!-- Actions -->
+            <div class="d-flex justify-content-between mt-4 btn-group-flex">
+              <button type="button" class="btn btn-outline-secondary" id="btnCallback">
+                Request a Callback
+              </button>
+              <button type="button" class="btn btn-gradient" id="btnSubmitQuery">
+                Submit a Query
+              </button>
+            </div>
 
-              <div class="ref-box mb-3 text-start mx-auto" style="max-width: 320px;">
-                <div>Reference ID:</div>
-                <div id="refCode" class="ref-code">QRMS-XXXXXXXX</div>
-              </div>
-
-              <p class="text-muted" style="font-size: 0.85rem;">
-                Please note this Reference ID for any follow-up with the HR team.
-              </p>
+            <!-- Success box with Reference ID -->
+            <div
+              id="successBox"
+              class="alert alert-success mt-4"
+              style="display:none;"
+            >
+              Your request has been submitted. Reference ID:
+              <span id="refCode" class="ref-code">QRMS-XXXXXXXX</span>
             </div>
           </div>
         </div>
