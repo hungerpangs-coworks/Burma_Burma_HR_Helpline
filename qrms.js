@@ -153,7 +153,7 @@ function validateForm(requestType, phoneNumber) {
   }
 
   if (selectedDatesArr.length === 0) {
-    return "Please add at least one relevant date.";
+    return "Please add at least one query date.";
   }
 
   if (requestType === "Callback") {
