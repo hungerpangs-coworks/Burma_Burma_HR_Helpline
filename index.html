@@ -2,13 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Burma Burma | Employee Referral</title>
+  <title>Burma Burma | My HR Support</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Basic SEO -->
-  <meta name="description"
-        content="Submit employee referrals for Burma Burma Restaurant & Tea Room through a simple HR referral portal integrated with Google Sheets." />
-  <meta name="robots" content="index, follow" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="512x512">
@@ -17,24 +12,7 @@
   <link rel="icon" type="image/png" href="BB_Logo_favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="BB_Logo_favicon.png">
 
-  <!-- Open Graph / Twitter (optional but nice) -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Burma Burma | Employee Referral" />
-  <meta property="og:description"
-        content="A quick and easy way for Burma Burma employees to submit referrals directly to HR." />
-  <meta property="og:url"
-        content="https://hungerpangs-coworks.github.io/Burma_Burma_HR_Referral/" />
-  <meta property="og:image"
-        content="https://hungerpangs-coworks.github.io/Burma_Burma_HR_Referral/BB_Logo_favicon.png" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Burma Burma | Employee Referral" />
-  <meta name="twitter:description"
-        content="Submit employee referrals quickly with this internal HR portal." />
-  <meta name="twitter:image"
-        content="https://hungerpangs-coworks.github.io/Burma_Burma_HR_Referral/BB_Logo_favicon.png" />
-
-  <!-- Bootstrap 5 CSS -->
+  <!-- Bootstrap 5 CSS (no integrity to avoid console warning) -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
@@ -63,7 +41,7 @@
       font-size: 0.95rem;
     }
 
-    .card-referral {
+    .card-helpline {
       border-radius: 18px;
       border: 1px solid #e5e7eb;
       box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
@@ -98,7 +76,7 @@
       color: #ffffff;
       font-weight: 600;
       border-radius: 999px;
-      padding: 0.7rem 1.6rem;
+      padding: 0.7rem 1.5rem;
       box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3);
     }
 
@@ -107,17 +85,55 @@
       transform: translateY(-1px);
     }
 
-    .section-heading {
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #6b7280;
-      margin-bottom: 4px;
+    .btn-outline-secondary {
+      border-radius: 999px;
+      font-weight: 500;
     }
 
-    .status-text {
-      font-size: 0.85rem;
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      margin: 0.15rem;
+      border-radius: 999px;
+      background-color: #e0f2fe;
+      font-size: 0.8rem;
+      color: #1d4ed8;
+    }
+
+    .chip button {
+      border: none;
+      background: transparent;
+      margin-left: 0.3rem;
+      font-size: 0.9rem;
+      line-height: 1;
+      cursor: pointer;
+      color: #1e3a8a;
+    }
+
+    .ref-code {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #4ade80 0, #22c55e 45%, #16a34a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 18px 40px rgba(34, 197, 94, 0.4);
+      margin: 0 auto 1rem;
+    }
+
+    .success-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: #ffffff;
+      stroke-width: 2;
     }
 
     @media (max-width: 576px) {
@@ -137,37 +153,35 @@
         <!-- Header -->
         <div class="text-center mb-4">
           <img src="BB_Logo_Cropped.png" alt="Burma Burma Logo" class="bb-logo mb-2" />
-          <div class="page-title">Employee Referral</div>
+          <div class="page-title">My HR Support</div>
           <div class="page-subtitle">
-            Refer great talent to the Burma Burma family in just a few clicks.
+            Your confidential gateway for HR assistance, requests, and guidance.
           </div>
         </div>
 
         <!-- Card -->
-        <div class="card card-referral">
+        <div class="card card-helpline">
           <div class="card-body p-4 p-md-5">
 
             <!-- ALERTS -->
             <div id="alert-container" class="mb-3" style="display:none;">
-              <div id="alert" class="alert mb-0" role="alert"></div>
+              <div id="alert" class="alert alert-danger mb-0" role="alert"></div>
             </div>
 
-            <!-- FORM -->
+            <!-- FORM SECTION -->
             <div id="formSection">
-              <!-- YOUR DETAILS -->
-              <div class="section-heading">Your details</div>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label for="employeeId" class="form-label">Employee ID <span class="text-danger">*</span></label>
+                  <label for="empId" class="form-label">Employee ID</label>
                   <input
                     type="text"
-                    id="employeeId"
+                    id="empId"
                     class="form-control"
                     placeholder="Enter your employee ID"
                   />
                 </div>
                 <div class="col-md-6">
-                  <label for="employeeName" class="form-label">Employee Name <span class="text-danger">*</span></label>
+                  <label for="employeeName" class="form-label">Employee Name</label>
                   <input
                     type="text"
                     id="employeeName"
@@ -175,73 +189,137 @@
                     placeholder="Enter your full name"
                   />
                 </div>
+
                 <div class="col-md-6">
-                  <label for="outletName" class="form-label">Outlet Name <span class="text-danger">*</span></label>
-                  <select id="outletName" class="form-select">
-                    <option value="">Select outlet</option>
+                  <label for="jobLocation" class="form-label">Job Location</label>
+                  <select id="jobLocation" class="form-select">
+                    <option value="">Loading locations...</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="queryType" class="form-label">Query Type</label>
+                  <select id="queryType" class="form-select">
+                    <option value="">Select Query Type</option>
+                    <option value="Salary">Salary</option>
+                    <option value="Service Charge">Service Charge</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="subQueryType" class="form-label">Sub Query Type</label>
+                  <select id="subQueryType" class="form-select" disabled>
+                    <option value="">Select Query Type first</option>
+                    <option value="Leave related">Leave related</option>
+                    <option value="Weekly off related">Weekly off related</option>
+                    <option value="Attendance related">Attendance related</option>
+                    <option value="Swipe related">Swipe related</option>
                   </select>
                 </div>
               </div>
 
-              <!-- REFERRAL DETAILS (candidate side) -->
-              <div class="section-heading mt-3">Referral details</div>
-              <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                  <label for="refDept" class="form-label">Referred in Department <span class="text-danger">*</span></label>
-                  <select id="refDept" class="form-select">
-                    <option value="">Select department</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label for="refDesig" class="form-label">Referred for Designation <span class="text-danger">*</span></label>
-                  <select id="refDesig" class="form-select">
-                    <option value="">Select designation</option>
-                  </select>
-                </div>
-
-                <div class="col-md-6">
-                  <label for="cvFile" class="form-label">Upload CV <span class="text-danger">*</span></label>
+              <!-- Dates section (mandatory) -->
+              <div class="mb-3">
+                <label class="form-label">Query Date(s) <span class="text-danger">*</span></label>
+                <div class="d-flex flex-wrap align-items-center">
                   <input
-                    type="file"
-                    id="cvFile"
+                    type="date"
+                    id="datePicker"
                     class="form-control"
-                    accept=".pdf,.doc,.docx,.rtf,.txt"
+                    style="max-width: 220px;"
                   />
-                  <small class="text-muted">Attach the candidate's latest CV.</small>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm ms-2 mt-2 mt-sm-0"
+                    id="btnAddDate"
+                  >
+                    Add Date
+                  </button>
                 </div>
-
-                <div class="col-md-12">
-                  <label for="remarks" class="form-label">Remarks (optional)</label>
-                  <textarea
-                    id="remarks"
-                    class="form-control"
-                    rows="3"
-                    placeholder="Share anything helpful about the person you’re referring."
-                  ></textarea>
-                </div>
+                <small class="text-muted" id="dateRangeHint">
+                  Select one or more dates related to your query.
+                </small>
+                <div id="selectedDatesContainer" class="mt-2"></div>
+                <input type="hidden" id="selectedDates" />
               </div>
 
-              <!-- ACTIONS -->
-              <div class="d-flex justify-content-between align-items-center mt-4 btn-group-flex">
-                <div id="statusText" class="status-text text-muted"></div>
-                <button type="button" class="btn btn-gradient" id="submitBtn">
-                  Submit Referral
+              <!-- Actions -->
+              <div class="d-flex justify-content-between mt-4 btn-group-flex">
+                <button type="button" class="btn btn-outline-secondary" id="btnCallback">
+                  Request a Callback
+                </button>
+                <button type="button" class="btn btn-gradient" id="btnSubmitQuery">
+                  Submit a Query
                 </button>
               </div>
             </div>
 
-            <!-- THANK YOU SECTION (optional – currently unused) -->
+            <!-- THANK YOU SECTION -->
             <div id="thankYouSection" class="text-center" style="display:none;">
+              <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5"></circle>
+                  <path d="M7 13l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
               <h4 class="mb-1">Thank you!</h4>
               <p class="text-muted mb-3">
-                Your referral has been submitted to HR.
+                Your request has been submitted to HR. We will get back to you soon.
               </p>
-              <button type="button" class="btn btn-gradient mt-2" id="btnNewReferral">
-                Submit another referral
+              <div class="border rounded p-3 mb-3 mx-auto" style="max-width: 360px;">
+                <div class="mb-1">Reference ID:</div>
+                <div id="refCode" class="ref-code">HR-XXXX</div>
+              </div>
+              <p class="text-muted" style="font-size:0.85rem;">
+                Please note this Reference ID for any follow-up with the HR team.
+              </p>
+              <button type="button" class="btn btn-gradient mt-2" id="btnNewRequest">
+                Submit another request
               </button>
             </div>
 
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Callback phone modal -->
+  <div class="modal fade" id="callbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Request a Callback</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label for="callbackPhone" class="form-label">Phone Number</label>
+          <input
+            type="tel"
+            id="callbackPhone"
+            class="form-control"
+            placeholder="10-digit mobile number"
+          />
+          <small class="text-muted">
+            HR will use this number to call you back.
+          </small>
+          <div
+            id="callbackPhoneError"
+            class="text-danger mt-2"
+            style="display:none;font-size:0.85rem;"
+          ></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="button" class="btn btn-gradient" id="confirmCallbackBtn">
+            Confirm Request
+          </button>
         </div>
       </div>
     </div>
@@ -252,201 +330,7 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
   ></script>
 
-  <script>
-    // 🔴 Your web app URL
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxIiJkv_m0RA3NnrI6uSiJzoy0GLLA1CX5RLauOnoq2fqSwsIKu_UXEPydrnC3cd6DuYg/exec';
-
-    const outletSelect = document.getElementById('outletName');
-    const deptSelect   = document.getElementById('refDept');
-    const desigSelect  = document.getElementById('refDesig');
-    const statusText   = document.getElementById('statusText');
-    const submitBtn    = document.getElementById('submitBtn');
-    const alertContainer = document.getElementById('alert-container');
-    const alertBox       = document.getElementById('alert');
-    const formSection    = document.getElementById('formSection');
-    const thankYouSection = document.getElementById('thankYouSection');
-    const btnNewReferral = document.getElementById('btnNewReferral');
-
-    let deptDesigMap = {}; // dept -> [designations]
-
-    function showAlert(message, type = 'danger') {
-      alertBox.className = 'alert alert-' + type + ' mb-0';
-      alertBox.textContent = message;
-      alertContainer.style.display = 'block';
-    }
-
-    function clearAlert() {
-      alertContainer.style.display = 'none';
-      alertBox.textContent = '';
-    }
-
-    function setStatus(msg, type) {
-      statusText.textContent = msg || '';
-      if (!msg) return;
-      statusText.classList.remove('text-success', 'text-danger', 'text-muted');
-      if (type === 'success') statusText.classList.add('text-success');
-      else if (type === 'error') statusText.classList.add('text-danger');
-      else statusText.classList.add('text-muted');
-    }
-
-    function fillSelect(selectEl, items, placeholder) {
-      selectEl.innerHTML = '';
-      const opt0 = document.createElement('option');
-      opt0.value = '';
-      opt0.textContent = placeholder;
-      selectEl.appendChild(opt0);
-
-      (items || []).forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v;
-        opt.textContent = v;
-        selectEl.appendChild(opt);
-      });
-    }
-
-    function updateDesignationOptionsForDept(dept) {
-      const list = deptDesigMap[dept] || [];
-      fillSelect(desigSelect, list, 'Select designation');
-    }
-
-    async function loadConfig() {
-      try {
-        setStatus('Loading options...', '');
-        clearAlert();
-
-        const res = await fetch(WEB_APP_URL + '?action=getConfig');
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || 'Failed to load config');
-
-        const { outlets, departments, deptDesigMap: ddm } = data.data || {};
-        deptDesigMap = ddm || {};
-
-        fillSelect(outletSelect, outlets, 'Select outlet');
-        fillSelect(deptSelect, departments, 'Select department');
-        fillSelect(desigSelect, [], 'Select designation');
-
-        setStatus('', '');
-      } catch (err) {
-        console.error(err);
-        showAlert('Error loading options: ' + err.message, 'danger');
-        setStatus('Error loading options', 'error');
-      }
-    }
-
-    deptSelect.addEventListener('change', () => {
-      const dept = deptSelect.value.trim();
-      updateDesignationOptionsForDept(dept);
-      desigSelect.value = '';
-    });
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        if (!file) return resolve(null);
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result || '';
-          const parts = String(result).split(',');
-          resolve(parts.length > 1 ? parts[1] : null);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function handleSubmit() {
-      try {
-        clearAlert();
-        setStatus('', '');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-
-        const employeeId   = document.getElementById('employeeId').value.trim();
-        const employeeName = document.getElementById('employeeName').value.trim();
-        const outletName   = outletSelect.value.trim();
-        const referringDept = deptSelect.value.trim();      // candidate dept
-        const referringDesig = desigSelect.value.trim();    // candidate role
-        const remarks      = document.getElementById('remarks').value.trim();
-        const cvFile       = document.getElementById('cvFile').files[0] || null;
-
-        if (!employeeId || !employeeName || !outletName || !referringDept || !referringDesig) {
-          throw new Error('Please fill all required fields (*)');
-        }
-        if (!cvFile) {
-          throw new Error('Please upload the candidate\'s CV.');
-        }
-
-        const base64 = await fileToBase64(cvFile);
-        const cvPayload = {
-          fileName: cvFile.name,
-          mimeType: cvFile.type || 'application/octet-stream',
-          base64: base64
-        };
-
-        const payload = {
-          employeeId,
-          employeeName,
-          outletName,
-          referringDept,               // stored as Referring Dept in sheet (candidate dept)
-          referringDesignation: referringDesig,
-          remarks,
-          cv: cvPayload
-        };
-
-        const formData = new FormData();
-        formData.append('payload', JSON.stringify({
-          action: 'submitReferral',
-          payload
-        }));
-
-        const res = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || 'Failed to submit');
-
-        setStatus('Referral submitted successfully 🎉', 'success');
-
-        // Clear form
-        document.getElementById('employeeId').value = '';
-        document.getElementById('employeeName').value = '';
-        outletSelect.value = '';
-        deptSelect.value = '';
-        updateDesignationOptionsForDept('');
-        document.getElementById('remarks').value = '';
-        document.getElementById('cvFile').value = '';
-
-        // (Optional) show thank you screen instead of just clearing
-        // formSection.style.display = 'none';
-        // thankYouSection.style.display = 'block';
-
-      } catch (err) {
-        console.error(err);
-        showAlert(err.message || 'Something went wrong while submitting your referral.', 'danger');
-        setStatus('Failed to submit', 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Referral';
-      }
-    }
-
-    submitBtn.addEventListener('click', evt => {
-      evt.preventDefault();
-      handleSubmit();
-    });
-
-    if (btnNewReferral) {
-      btnNewReferral.addEventListener('click', () => {
-        thankYouSection.style.display = 'none';
-        formSection.style.display = 'block';
-        clearAlert();
-        setStatus('', '');
-      });
-    }
-
-    // Initial load
-    loadConfig();
-  </script>
+  <!-- App logic -->
+  <script src="qrms.js"></script>
 </body>
 </html>
